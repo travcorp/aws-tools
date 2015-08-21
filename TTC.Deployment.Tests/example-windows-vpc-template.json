@@ -388,36 +388,12 @@
                     "Ref": "securityGroup1"
                 },
                 "IpProtocol": "tcp",
-                "FromPort": "3389",
-                "ToPort": "3389",
-                "CidrIp": "213.249.191.240/32"
-            }
-        },
-        "ingress2": {
-            "Type": "AWS::EC2::SecurityGroupIngress",
-            "Properties": {
-                "GroupId": {
-                    "Ref": "securityGroup1"
-                },
-                "IpProtocol": "tcp",
-                "FromPort": "22",
-                "ToPort": "22",
-                "CidrIp": "213.249.191.240/32"
-            }
-        },
-        "ingress3": {
-            "Type": "AWS::EC2::SecurityGroupIngress",
-            "Properties": {
-                "GroupId": {
-                    "Ref": "securityGroup1"
-                },
-                "IpProtocol": "tcp",
                 "FromPort": "80",
                 "ToPort": "80",
                 "CidrIp": "0.0.0.0/0"
             }
         },
-        "ingress4": {
+        "ingress2": {
             "Type": "AWS::EC2::SecurityGroupIngress",
             "Properties": {
                 "GroupId": {
@@ -429,7 +405,7 @@
                 "CidrIp": "0.0.0.0/0"
             }
         },
-        "ingress5": {
+        "ingress3": {
             "Type": "AWS::EC2::SecurityGroupIngress",
             "Properties": {
                 "GroupId": {
