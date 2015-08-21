@@ -54,7 +54,7 @@
     <Compile Include="StackHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <Content Include="App.config" />
     <None Include="CodeDeployRole\code-deploy-trust.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
