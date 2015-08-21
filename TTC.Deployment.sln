@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTC.Deployment.Tests", "TTC.Deployment.Tests\TTC.Deployment.Tests.csproj", "{3E190FC6-4A21-4477-9792-EBB4C3FE12A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTC.Deployment.AmazonWebServices", "TTC.Deployment.AmazonWebServices\TTC.Deployment.AmazonWebServices.csproj", "{7B4BF19E-65F5-48F6-8B4F-4A390ABAC003}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A7D55F29-0BF2-4FA2-AE05-C4F12E06F2D9}"
+	ProjectSection(SolutionItems) = preProject
+		TTC.Deployment\.nuget\NuGet.Config = TTC.Deployment\.nuget\NuGet.Config
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		TTC.Deployment\.nuget\NuGet.exe = TTC.Deployment\.nuget\NuGet.exe
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		TTC.Deployment\.nuget\NuGet.targets = TTC.Deployment\.nuget\NuGet.targets
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSProvisionCloud", "AWSProvisionCloud\AWSProvisionCloud.csproj", "{71541178-51BA-4A22-B405-A0B084D0BF23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSS3Push", "AWSS3Push\AWSS3Push.csproj", "{1A4C0479-76A5-493F-90B0-FADEC58E3E37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSPushAndDeploy", "AWSDeployCode\AWSPushAndDeploy.csproj", "{A3154A1F-466E-4733-A264-83D620A9A823}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3E190FC6-4A21-4477-9792-EBB4C3FE12A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E190FC6-4A21-4477-9792-EBB4C3FE12A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E190FC6-4A21-4477-9792-EBB4C3FE12A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E190FC6-4A21-4477-9792-EBB4C3FE12A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B4BF19E-65F5-48F6-8B4F-4A390ABAC003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B4BF19E-65F5-48F6-8B4F-4A390ABAC003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B4BF19E-65F5-48F6-8B4F-4A390ABAC003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B4BF19E-65F5-48F6-8B4F-4A390ABAC003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71541178-51BA-4A22-B405-A0B084D0BF23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71541178-51BA-4A22-B405-A0B084D0BF23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71541178-51BA-4A22-B405-A0B084D0BF23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71541178-51BA-4A22-B405-A0B084D0BF23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A4C0479-76A5-493F-90B0-FADEC58E3E37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A4C0479-76A5-493F-90B0-FADEC58E3E37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A4C0479-76A5-493F-90B0-FADEC58E3E37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A4C0479-76A5-493F-90B0-FADEC58E3E37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3154A1F-466E-4733-A264-83D620A9A823}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3154A1F-466E-4733-A264-83D620A9A823}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3154A1F-466E-4733-A264-83D620A9A823}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3154A1F-466E-4733-A264-83D620A9A823}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

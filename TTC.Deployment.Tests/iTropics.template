@@ -1,0 +1,395 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters" : {
+    "S3BucketName" : {
+      "Description" : "S3 bucket name for builds",
+      "Type" : "String",
+      "MinLength": 1
+    },
+     "BuildS3Key" : {
+      "Description" : "build filename in s3",
+      "Type" : "String",
+      "MinLength": 1
+    },
+     "EnvironmentConfigS3Key" : {
+      "Description" : "environment configuration file key",
+      "Type" : "String",
+      "MinLength": 1
+    }
+  },
+  "Resources": {
+    "InstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : ["S3CodeAccessRole"]
+      }
+    },
+    "vpccf9ca7aa": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "InstanceTenancy": "default",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TemplateVPC"
+          }
+        ]
+      }
+    },
+    "subnet1a51046d": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/24",
+        "AvailabilityZone": "us-east-1a",
+        "VpcId": {
+          "Ref": "vpccf9ca7aa"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TemplatePublicSubnet"
+          }
+        ]
+      }
+    },
+    "igw2f61134a": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+      }
+    },
+    "dopt0105e864": {
+      "Type": "AWS::EC2::DHCPOptions",
+      "Properties": {
+        "DomainName": "ec2.internal",
+        "DomainNameServers": [
+          "AmazonProvidedDNS"
+        ]
+      }
+    },
+    "acl20dfe445": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpccf9ca7aa"
+        }
+      }
+    },
+    "rtb870218e2": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpccf9ca7aa"
+        }
+      }
+    },
+    "rtb840218e1": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpccf9ca7aa"
+        }
+      }
+    },
+    "BookingWizardEIP": {
+      "Type": "AWS::EC2::EIP",
+      "DependsOn": [
+        "gw1"
+      ],
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "BookingWizardWeb": {
+      "Type": "AWS::EC2::Instance",
+      "Metadata" : {
+       
+      },
+      "Properties": {
+         "IamInstanceProfile" : {"Ref" : "InstanceProfile"},
+         "UserData" : { "Fn::Base64" :
+          { 
+            "Fn::Join" : ["", [
+              "<script>\n",
+                "powershell.exe add-windowsfeature web-webserver -includeallsubfeature -logpath $env:temp\\webserver_addrole.log \n",
+                "powershell.exe add-windowsfeature web-mgmt-tools -includeallsubfeature -logpath $env:temp\\mgmttools_addrole.log \n",
+                "powershell.exe new-website -name \"AWSLogs\" -PhysicalPath \"$env:systemdrive\\Program` Files\\Amazon\\Ec2ConfigService\\Logs\" -port 8181 \n",
+                "powershell.exe new-netfirewallrule -DisplayName \"AWS` Logs\" -LocalPort 8181 -Protocol TCP -Direction Inbound -Action Allow \n",
+                "powershell.exe Read-S3Object -BucketName ", { "Ref": "S3BucketName" }, " -Key ", { "Ref": "BuildS3Key" }, " -File c:\\install.zip \n",
+                "powershell.exe Read-S3Object -BucketName ", { "Ref": "S3BucketName" }, " -Key ", { "Ref": "EnvironmentConfigS3Key" }, " -File c:\\environment.configuration \n",
+                "powershell.exe [System.Reflection.Assembly]::LoadWithPartialName('System.IO.Compression.FileSystem'); [System.IO.Compression.ZipFile]::ExtractToDirectory('c:\\install.zip', 'c:\\install') \n",
+                "powershell.exe  -ExecutionPolicy ByPass -File c:\\install\\configure_and_install.ps1 -config c:\\environment.configuration \n",
+                "cfn-signal.exe -e %ERRORLEVEL% ", { "Fn::Base64" : { "Ref" : "BookingWizardWaitHandle" }}, "\n",
+              "</script>\n" 
+            ]]
+          }
+        },
+
+        "DisableApiTermination": "false",
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "ImageId": "ami-0602116e",
+        "InstanceType": "t2.small",
+        "KeyName": "WindowsTestKey",
+        "Monitoring": "false",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TemplateWebServer"
+          }
+        ],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "subnet1a51046d"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "10.0.0.219",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "sgTemplatePublicSecurityGroup"
+              }
+            ]
+          }
+        ]
+      }
+    },
+
+    "BookingWizardWaitHandle" : {
+      "Type" : "AWS::CloudFormation::WaitConditionHandle"
+    },
+
+    "BookingWizardWaitCondition" : {
+      "Type" : "AWS::CloudFormation::WaitCondition",
+      "DependsOn" : "BookingWizardWeb",
+      "Properties" : {
+        "Handle" : {"Ref" : "BookingWizardWaitHandle"},
+        "Timeout" : "1200"
+      }
+    },
+
+    "sgTemplatePublicSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "TemplatePublicSecurityGroup",
+        "VpcId": {
+          "Ref": "vpccf9ca7aa"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "TemplatePublicSecurityGroup"
+          }
+        ]
+      }
+    },
+    "acl1": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "acl20dfe445"
+        }
+      }
+    },
+    "acl2": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "acl20dfe445"
+        }
+      }
+    },
+    "subnetacl1": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "acl20dfe445"
+        },
+        "SubnetId": {
+          "Ref": "subnet1a51046d"
+        }
+      }
+    },
+    "gw1": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpccf9ca7aa"
+        },
+        "InternetGatewayId": {
+          "Ref": "igw2f61134a"
+        }
+      }
+    },
+    "subnetroute2": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "rtb840218e1"
+        },
+        "SubnetId": {
+          "Ref": "subnet1a51046d"
+        }
+      }
+    },
+    "route1": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "rtb870218e2"
+        },
+        "GatewayId": {
+          "Ref": "igw2f61134a"
+        }
+      },
+      "DependsOn": "gw1"
+    },
+    "route2": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "rtb840218e1"
+        },
+        "GatewayId": {
+          "Ref": "igw2f61134a"
+        }
+      },
+      "DependsOn": "gw1"
+    },
+    "dchpassoc1": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "VpcId": {
+          "Ref": "vpccf9ca7aa"
+        },
+        "DhcpOptionsId": {
+          "Ref": "dopt0105e864"
+        }
+      }
+    },
+    "assoc1": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "BookingWizardEIP",
+            "AllocationId"
+          ]
+        },
+        "InstanceId": {
+          "Ref": "BookingWizardWeb"
+        }
+      }
+    },
+    "ingress1": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgTemplatePublicSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "3389",
+        "ToPort": "3389",
+        "CidrIp": "213.249.191.240/32"
+      }
+    },
+    "ingress2": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgTemplatePublicSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "22",
+        "ToPort": "22",
+        "CidrIp": "213.249.191.240/32"
+      }
+    },
+    "ingress3": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgTemplatePublicSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "80",
+        "ToPort": "80",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress4": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgTemplatePublicSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "443",
+        "ToPort": "443",
+        "CidrIp": "0.0.0.0/0"
+      }
+    },
+    "ingress5": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgTemplatePublicSecurityGroup"
+        },
+        "IpProtocol": "icmp",
+        "FromPort": "-1",
+        "ToPort": "-1",
+        "CidrIp": "10.0.1.0/24"
+      }
+    },
+    "ingress6": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgTemplatePublicSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "FromPort": "8181",
+        "ToPort": "8181",
+        "CidrIp": "213.249.191.240/32"
+      }
+    },
+    "egress1": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties": {
+        "GroupId": {
+          "Ref": "sgTemplatePublicSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "CidrIp": "0.0.0.0/0"
+      }
+    }
+  },
+  "Description": "PC-BookingWizard",
+
+  "Outputs" : {
+    "BookingWizardURL" : {
+      "Value" : { "Fn::Join" : ["", ["http://", { "Ref" : "BookingWizardEIP" } ]] },
+      "Description" : "New booking wizard url"
+    }
+  }
+}
