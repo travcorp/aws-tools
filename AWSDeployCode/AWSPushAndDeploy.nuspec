@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>AWSPushAndDeploy</id>
-    <version>1.0.3</version>
+    <version>1.0.7</version>
     <title>AWSPushAndDeploy</title>
     <authors>TravCorp</authors>
     <owners>TravCorp</owners>
@@ -11,5 +11,12 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2015 - TTC</copyright>
     <tags></tags>
+  <dependencies>
+      <dependency id="CommandLineParser" version="1.9.71" />
+      <dependency id="AWSSDK" version="2.3.46" />
+    </dependencies>
   </metadata>
+  <files>
+    <file src="bin\Release\*.dll" target="lib\net45" />
+  </files>
 </package>
