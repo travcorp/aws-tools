@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System;
+using Amazon;
 using CommandLine;
 using CommandLine.Text;
 using TTC.Deployment.AmazonWebServices;
@@ -18,7 +19,7 @@ namespace AWSPushAndDeploly
                 IamRolePolicyDocument = options.S3AccessPolicyDocumentPath,
                 Bucket = options.BucketName,
                 RoleName = "CodeDeployRole",
-                AwsEndpoint = RegionEndpoint.USEast1,
+                AwsEndpoint =  (RegionEndpoint)Enum.Parse(typeof(RegionEndpoint), options.RegionEndpoint), 
                 Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort }
             });
             var revision = deployer.PushRevision(new ApplicationSetRevision
@@ -59,6 +60,9 @@ namespace AWSPushAndDeploly
 
         [Option('x', "proxyPort", Required = false, HelpText = "The proxy port")]
         public int ProxyPort { get; set; }
+
+        [Option('e', "regionEndpoint", Required = false, HelpText = "Amazon region endoint", DefaultValue = "USEast1")]
+        public string RegionEndpoint { get; set; }
 
         [HelpOption]
         public string GetUsage()
