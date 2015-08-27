@@ -61,6 +61,31 @@ For deploy to work, the EC2 instances must have a code deploy agent installed. T
   "</script>\n"
 ```
 
+It uploads applications zipped into folders named after their CodeDeploy DeploymentGroups.  It then CodeDeploys each group to all EC2 instances tagged as follows:
+
+```
+Name:  DeploymentRole  
+Value: {{CodeDeploy_DeploymentGroup}}
+```
+
+So, if you have two different machines - one for a website, one for an internal api you may tag them
+
+web layer
+
+```
+Name:  DeploymentRole  
+Value: MyStack_Website
+```
+
+internal api layer
+
+```
+Name:  DeploymentRole  
+Value: MyStack_API
+```
+
+See the tests for help with this.
+
 Requires:
 
  - __stackName__                  *the name of the running Cloud Formation stack to deploy to*
@@ -75,6 +100,7 @@ Requires:
  Optional:
  - __proxyHost__                *Host of proxy server if you need to use one*
  - __proxyPort__                *Port of proxy server if you need to use one*
+ - __regionEndpoint__			*AWSRegion one of us-east-1, us-west-1, us-west-2, etc*
 
 `AWSPushAndDeploy  --version 1.1.2 --buildDirectoryPath .\TTC.Deployment.Tests\ExampleRevisions\HelloWorld --applicationSetName someTestBuild --IAMRolePolicyDocumentPath .\TTC.Deployment.Tests\CodeDeployRole\code-deploy-policy.json --assumeRoleTrustDocument .\TTC.Deployment.Tests\CodeDeployRole\code-deploy-policy.json --bucketName testReleases --stackName MyStack`
 
