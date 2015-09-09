@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Linq;
 using Amazon;
 using CommandLine;
 using CommandLine.Text;
 using TTC.Deployment.AmazonWebServices;
 
-namespace AWSPushAndDeploly
+namespace AWSPushAndDeploy
 {
     class Program
     {
@@ -29,7 +28,16 @@ namespace AWSPushAndDeploly
                 Version = options.Version,
                 LocalDirectory = options.BuildDirectoryPath
             });
-            deployer.DeployRelease(revision, options.StackName);
+            try
+            {
+                deployer.DeployRelease(revision, options.StackName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("AWS Push And Deploy Error:");
+                Console.WriteLine(e.Message);
+            }
+            
         }
     }
 

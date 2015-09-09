@@ -213,9 +213,12 @@ namespace TTC.Deployment.AmazonWebServices
             if (deploymentStatus == DeploymentStatus.Failed)
             {
                 var failedInstances = GetFailedInstancesFor(new[] { deploymentInfo });
-                throw new DeploymentsFailedException(failedInstances);
+                if (failedInstances.Any())
+                {
+                    throw new DeploymentsFailedException(failedInstances);                    
+                }
+                throw new NoInstancesException();
             }
-
             return deploymentResponse;
         }
 
@@ -236,7 +239,7 @@ namespace TTC.Deployment.AmazonWebServices
             }
         }
 
-        private IEnumerable<FailedInstance> GetFailedInstancesFor(DeploymentInfo[] failedDeployments)
+        private FailedInstance[] GetFailedInstancesFor(DeploymentInfo[] failedDeployments)
         {
             var allFailedInstances = new List<FailedInstance>();
             foreach (var deployment in failedDeployments)
@@ -258,10 +261,9 @@ namespace TTC.Deployment.AmazonWebServices
                 allFailedInstances.AddRange(awsInstances.Select(i => 
                     new FailedInstance(i.InstanceSummary.InstanceId, deployment.DeploymentId, i.InstanceSummary.LifecycleEvents.First(lce => lce.Status == LifecycleEventStatus.Failed).Diagnostics.LogTail))
                 );
-
             }
 
-            return allFailedInstances;
+            return allFailedInstances.ToArray();
         }
 
         string PushDirectoryAsCodeDeployApplication(string directory, string applicationSetName, string bundleName, string versionString, string bucketName)

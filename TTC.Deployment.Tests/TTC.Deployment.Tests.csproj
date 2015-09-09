@@ -32,9 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AWSSDK, Version=2.3.46.0, Culture=neutral, PublicKeyToken=9f476d3089b52be3, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\AWSSDK.2.3.46.0\lib\net45\AWSSDK.dll</HintPath>
+    <Reference Include="AWSSDK">
+      <HintPath>..\packages\AWSSDK.2.3.51.0\lib\net45\AWSSDK.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
@@ -55,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
+    <Content Include="ExampleRevisions\HelloWorld-Empty\Wtf\wtf.txt" />
     <None Include="CodeDeployRole\code-deploy-trust.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
