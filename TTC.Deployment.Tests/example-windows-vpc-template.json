@@ -100,7 +100,7 @@
 
                 "DisableApiTermination": "false",
                 "InstanceInitiatedShutdownBehavior": "stop",
-                "ImageId": "ami-478d782c",
+                "ImageId": "ami-417bcf2a",
                 "InstanceType": "t2.small",
                 "KeyName": "WindowsTestKey",
                 "Monitoring": "false",
@@ -186,7 +186,7 @@
 
                 "DisableApiTermination": "false",
                 "InstanceInitiatedShutdownBehavior": "stop",
-                "ImageId": "ami-478d782c",
+                "ImageId": "ami-417bcf2a",
                 "InstanceType": "t2.small",
                 "KeyName": "WindowsTestKey",
                 "Monitoring": "false",
