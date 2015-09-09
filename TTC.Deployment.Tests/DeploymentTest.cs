@@ -52,7 +52,7 @@ namespace TTC.Deployment.Tests
         }
 
         [Test]
-        public void ThrowsDeplymentsFailedExceptionForBadDeployments()
+        public void ThrowsDeploymentsFailedExceptionForBadDeployments()
         {
             var badRevision = _deployer.PushRevision(new ApplicationSetRevision
             {
@@ -81,6 +81,26 @@ namespace TTC.Deployment.Tests
            {
                Assert.That(e.FailedInstances.First().Tail, Is.EqualTo(expectedTail));
            }
+        }
+
+        [Test]
+        public void ThrowsDeploymentsFailedExceptionWhenNoInstancesWereMatched()
+        {
+            var badRevision = _deployer.PushRevision(new ApplicationSetRevision
+            {
+                ApplicationSetName = "HelloWorld",
+                Version = "Empty",
+                LocalDirectory = @".\ExampleRevisions\HelloWorld-Empty"
+            });
+
+            try
+            {
+                _deployer.DeployRelease(badRevision, StackName);
+                Assert.Fail("Expected NoInstancesException");
+            }
+            catch (NoInstancesException)
+            {
+            }
         }
 
         [Test]
