@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Amazon;
 using CommandLine;
 using CommandLine.Text;
@@ -36,8 +37,8 @@ namespace AWSPushAndDeploy
             {
                 Console.WriteLine("AWS Push And Deploy Error:");
                 Console.WriteLine(e.Message);
+                Environment.Exit(666);
             }
-            
         }
     }
 
