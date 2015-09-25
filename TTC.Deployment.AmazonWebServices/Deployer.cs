@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
@@ -271,7 +272,7 @@ namespace TTC.Deployment.AmazonWebServices
             var zipFileName = string.Format("{0}.{1}.{2}.zip", applicationSetName, versionString, bundleName);
             var tempPath = Path.Combine(Path.GetTempPath(), zipFileName + "." + Guid.NewGuid() + ".zip");
 
-            ZipFile.CreateFromDirectory(directory, tempPath);
+            ZipFile.CreateFromDirectory(directory, tempPath, CompressionLevel.Optimal, false, Encoding.ASCII);
 
             var allTheBuckets = _s3Client.ListBuckets(new ListBucketsRequest()).Buckets;
 
