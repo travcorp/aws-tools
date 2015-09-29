@@ -112,7 +112,8 @@ namespace TTC.Deployment.AmazonWebServices
             var deploymentIds = new List<string>();
             foreach (var bundle in release.Bundles)
             {
-                var deploymentGroupName = stackName + "_" + bundle.BundleName;
+                var deploymentGroupName = stackName + "_" + bundle.BundleName + "_" + release.Version;
+                Console.WriteLine("Deploying to group: " + deploymentGroupName);
                 EnsureDeploymentGroupExistsForApplicationBundleAndEnvironment(bundle.ApplicationSetName, bundle.BundleName, deploymentGroupName);
                 var deploymentResponse = DeployBundleToEnvironment(bundle, deploymentGroupName);
                 deploymentIds.Add(deploymentResponse.DeploymentId);
