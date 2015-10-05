@@ -29,7 +29,11 @@ namespace TTC.Deployment.AmazonWebServices
         {
             _awsConfiguration = awsConfiguration;
 
-            var profile = new StoredProfileAWSCredentials(_awsConfiguration.ProfileName, _awsConfiguration.ProfilesLocation);
+            AWSCredentials profile;
+            if (!String.IsNullOrWhiteSpace(_awsConfiguration.ProfileName) && !String.IsNullOrWhiteSpace(_awsConfiguration.ProfilesLocation))
+                profile = new StoredProfileAWSCredentials(_awsConfiguration.ProfileName, _awsConfiguration.ProfilesLocation);
+            else
+                profile = new InstanceProfileAWSCredentials();
 
             _codeDeployClient = new AmazonCodeDeployClient(
                 profile,
