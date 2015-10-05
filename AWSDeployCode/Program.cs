@@ -21,7 +21,8 @@ namespace AWSPushAndDeploy
                 Bucket = options.BucketName,
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.RegionEndpoint), 
-                Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort }
+                Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort },
+                DeployToAutoScalingGroups = options.DeployToAutoScalingGroups
             });
             var revision = deployer.PushRevision(new ApplicationSetRevision
             {
@@ -73,6 +74,9 @@ namespace AWSPushAndDeploy
 
         [Option('e', "regionEndpoint", Required = false, HelpText = "Amazon region endpoint", DefaultValue = "us-east-1")]
         public string RegionEndpoint { get; set; }
+
+        [Option('d', "deployToAutoScalingGroups", Required = false, HelpText = "Deploy to auto scaling groups instead of EC2 instances (Values can be 'true' or 'false'. Default is 'false')", DefaultValue = "false")]
+        public string DeployToAutoScalingGroups { get; set; }
 
         [HelpOption]
         public string GetUsage()
