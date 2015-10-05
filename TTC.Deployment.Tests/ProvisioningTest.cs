@@ -30,7 +30,9 @@ namespace TTC.Deployment.Tests
                 Bucket = "test-releases",
                 RoleName = "CodeDeployRole",
                 AwsEndpoint =  RegionEndpoint.USEast1,
-                Proxy = new AwsProxy()
+                Proxy = new AwsProxy(),
+                ProfileName = "dev",
+                ProfilesLocation = "."
             };
             _cloudFormationClient = new AmazonCloudFormationClient(new AmazonCloudFormationConfig { RegionEndpoint = _awsConfiguration.AwsEndpoint });
             DeletePreviousTestStack();

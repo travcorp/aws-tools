@@ -27,7 +27,9 @@ namespace TTC.Deployment.Tests
                 Bucket = "aws-test-releases",
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.USEast1,
-                Proxy = new AwsProxy()
+                Proxy = new AwsProxy(),
+                ProfileName = "dev",
+                ProfilesLocation = "."
             };
 
             _deployer = new Deployer(_awsConfiguration);

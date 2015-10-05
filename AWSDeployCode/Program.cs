@@ -22,7 +22,9 @@ namespace AWSPushAndDeploy
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.RegionEndpoint), 
                 Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort },
-                DeployToAutoScalingGroups = options.DeployToAutoScalingGroups
+                DeployToAutoScalingGroups = options.DeployToAutoScalingGroups,
+                ProfileName = options.ProfileName,
+                ProfilesLocation = options.ProfilesLocation
             });
             var revision = deployer.PushRevision(new ApplicationSetRevision
             {
@@ -77,6 +79,12 @@ namespace AWSPushAndDeploy
 
         [Option('d', "deployToAutoScalingGroups", Required = false, HelpText = "Deploy to auto scaling groups instead of EC2 instances (Values can be 'true' or 'false'. Default is 'false')", DefaultValue = "false")]
         public string DeployToAutoScalingGroups { get; set; }
+        
+        [Option('f', "profileName", Required = true, HelpText = "Name of the IAM profile to use with AWS API")]
+        public string ProfileName { get; set; }
+
+        [Option('l', "profilesLocation", Required = true, HelpText = "Path to the IAM profiles file")]
+        public string ProfilesLocation { get; set; }
 
         [HelpOption]
         public string GetUsage()
