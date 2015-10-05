@@ -35,7 +35,7 @@ namespace TTC.Deployment.AmazonWebServices
             if (!String.IsNullOrWhiteSpace(_awsConfiguration.ProfileName) && !String.IsNullOrWhiteSpace(_awsConfiguration.ProfilesLocation))
                 profile = new StoredProfileAWSCredentials(_awsConfiguration.ProfileName, _awsConfiguration.ProfilesLocation);
             else
-                profile = new InstanceProfileAWSCredentials();
+                profile = new EnvironmentAWSCredentials();
 
             _codeDeployClient = new AmazonCodeDeployClient(
                 profile,

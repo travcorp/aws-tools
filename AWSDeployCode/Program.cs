@@ -80,10 +80,10 @@ namespace AWSPushAndDeploy
         [Option('d', "deployToAutoScalingGroups", Required = false, HelpText = "Deploy to auto scaling groups instead of EC2 instances (Values can be 'true' or 'false'. Default is 'false')", DefaultValue = "false")]
         public string DeployToAutoScalingGroups { get; set; }
         
-        [Option('f', "profileName", Required = true, HelpText = "Name of the IAM profile to use with AWS API")]
+        [Option('f', "profileName", Required = false, HelpText = "Name of the IAM profile to use with AWS API")]
         public string ProfileName { get; set; }
 
-        [Option('l', "profilesLocation", Required = true, HelpText = "Path to the IAM profiles file")]
+        [Option('l', "profilesLocation", Required = false, HelpText = "Path to the IAM profiles file")]
         public string ProfilesLocation { get; set; }
 
         [HelpOption]
