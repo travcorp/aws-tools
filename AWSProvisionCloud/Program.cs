@@ -44,10 +44,10 @@ namespace AWSCloudProvision
         [Option('x', "proxyPort", Required = false, HelpText = "The proxy port")]
         public int ProxyPort { get; set; }
 
-        [Option('f', "profileName", Required = true, HelpText = "Name of the IAM profile to use with AWS API")]
+        [Option('f', "profileName", Required = false, HelpText = "Name of the IAM profile to use with AWS API")]
         public string ProfileName { get; set; }
 
-        [Option('l', "profilesLocation", Required = true, HelpText = "Path to the IAM profiles file")]
+        [Option('l', "profilesLocation", Required = false, HelpText = "Path to the IAM profiles file")]
         public string ProfilesLocation { get; set; }
 
         [HelpOption]
