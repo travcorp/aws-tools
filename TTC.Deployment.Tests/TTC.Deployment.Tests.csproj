@@ -75,9 +75,6 @@
     <None Include="CodeDeployRole\code-deploy-policy.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="credentials">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="example-windows-vpc-template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
