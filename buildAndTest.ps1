@@ -11,7 +11,7 @@ if (-not $?) {
   throw "Failed to compile the solution"
 }
 
-& .\packages\NUnit.Runners.2.6.4\tools\nunit-console.exe .\TTC.Deployment.Tests\bin\Release\TTC.Deployment.Tests.dll
+& .\packages\NUnit.Runners.2.6.4\tools\nunit-console.exe .\TTC.Deployment.Tests\bin\Release\TTC.Deployment.Tests.dll /xml:".\TestResults.xml" /config:Release /noshadow /nodots /labels
 if (-not $?) {
   throw "NUnit failed"
 }
