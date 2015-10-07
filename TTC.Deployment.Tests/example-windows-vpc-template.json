@@ -63,16 +63,6 @@
                 "VpcId": { "Ref": "vpc1" }
             }
         },
-        "webServerEIP": {
-            "Type": "AWS::EC2::EIP",
-            "DependsOn": [ "gatewayAttachment1" ],
-            "Properties": { "Domain": "vpc1" }
-        },
-        "internalApiServerEIP": {
-            "Type": "AWS::EC2::EIP",
-            "DependsOn": [ "gatewayAttachment1" ],
-            "Properties": { "Domain": "vpc1" }
-        },
         "webServer": {
             "Type": "AWS::EC2::Instance",
             "Metadata": { },
@@ -100,7 +90,7 @@
 
                 "DisableApiTermination": "false",
                 "InstanceInitiatedShutdownBehavior": "stop",
-                "ImageId": "ami-417bcf2a",
+                "ImageId": "ami-c9cea0ac",
                 "InstanceType": "t2.small",
                 "KeyName": "WindowsTestKey",
                 "Monitoring": "false",
@@ -122,6 +112,7 @@
                 ],
                 "NetworkInterfaces": [
                     {
+						"AssociatePublicIpAddress": true,
                         "DeleteOnTermination": "true",
                         "Description": "Primary network interface",
                         "DeviceIndex": 0,
@@ -150,7 +141,7 @@
 
         "webServerWaitCondition": {
             "Type": "AWS::CloudFormation::WaitCondition",
-            "DependsOn": [ "webServer", "webServerEIP" ],
+            "DependsOn": [ "webServer" ],
             "Properties": {
                 "Handle": { "Ref": "webServerWaitHandle" },
                 "Timeout": "1200"
@@ -186,7 +177,7 @@
 
                 "DisableApiTermination": "false",
                 "InstanceInitiatedShutdownBehavior": "stop",
-                "ImageId": "ami-417bcf2a",
+                "ImageId": "ami-c9cea0ac",
                 "InstanceType": "t2.small",
                 "KeyName": "WindowsTestKey",
                 "Monitoring": "false",
@@ -208,6 +199,7 @@
                 ],
                 "NetworkInterfaces": [
                     {
+						"AssociatePublicIpAddress": true,
                         "DeleteOnTermination": "true",
                         "Description": "Primary network interface",
                         "DeviceIndex": 0,
@@ -236,7 +228,7 @@
 
         "internalApiServerWaitCondition": {
             "Type": "AWS::CloudFormation::WaitCondition",
-            "DependsOn": [ "internalApiServer", "internalApiServerEIP" ],
+            "DependsOn": [ "internalApiServer" ],
             "Properties": {
                 "Handle": { "Ref": "internalApiServerWaitHandle" },
                 "Timeout": "2000"
@@ -353,34 +345,6 @@
                 }
             }
         },
-        "webServerEipAssociation": {
-            "Type": "AWS::EC2::EIPAssociation",
-            "Properties": {
-                "AllocationId": {
-                    "Fn::GetAtt": [
-                        "webServerEIP",
-                        "AllocationId"
-                    ]
-                },
-                "InstanceId": {
-                    "Ref": "webServer"
-                }
-            }
-        },
-        "internalApiServerEipAssociation": {
-            "Type": "AWS::EC2::EIPAssociation",
-            "Properties": {
-                "AllocationId": {
-                    "Fn::GetAtt": [
-                        "internalApiServerEIP",
-                        "AllocationId"
-                    ]
-                },
-                "InstanceId": {
-                    "Ref": "internalApiServer"
-                }
-            }
-        },
         "ingress1": {
             "Type": "AWS::EC2::SecurityGroupIngress",
             "Properties": {
@@ -426,12 +390,18 @@
                 "IpProtocol": "-1",
                 "CidrIp": "0.0.0.0/0"
             }
+        },
+        "egress2": {
+            "Type": "AWS::EC2::SecurityGroupEgress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "securityGroup1"
+                },
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
+                "CidrIp": "0.0.0.0/0"
+            }
         }
-    },
-  "Outputs" : {
-    "elasticIpUrl" : {
-      "Value" : { "Fn::Join" : ["", ["http://", { "Ref" : "webServerEIP" } ]] },
-      "Description" : "The public IP address"
     }
-  }
 }

@@ -16,7 +16,7 @@ namespace TTC.Deployment.Tests
     {
         private AwsConfiguration _awsConfiguration;
         private AmazonCloudFormationClient _cloudFormationClient;
-        const string StackName = "TestEnv1";
+        const string StackName = "AwsToolsTestVPC";
 
         [SetUp]
         public void SetUp()
@@ -43,7 +43,7 @@ namespace TTC.Deployment.Tests
         }
 
         [Test]
-        public void CreatesCloud()
+        public void CreatesVirtualPrivateCloudWithWindowsMachines()
         {
             var deployer = new Deployer(_awsConfiguration);
         
