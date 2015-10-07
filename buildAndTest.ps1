@@ -6,7 +6,7 @@ trap
 
 $msbuild = (Join-Path $env:winDir "Microsoft.NET\Framework64\v4.0.30319\MSBuild")
 
-& $msbuild .\TTC.Deployment.sln
+& $msbuild  .\TTC.Deployment.sln /p:Configuration=Release /p:VisualStudioVersion=14.0
 if (-not $?) {
   throw "Failed to compile the solution"
 }
