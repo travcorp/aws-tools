@@ -93,7 +93,8 @@ namespace TTC.Deployment.AmazonWebServices
             }
             if (status != StackStatus.CREATE_COMPLETE)
             {
-                throw new FailedToCreateStackException(stackName, status.Value, statusReason);
+                var eventsResponse = _cloudFormationClient.DescribeStackEvents(new DescribeStackEventsRequest { StackName = stackName });
+                throw new FailedToCreateStackException(stackName, _awsConfiguration.AwsEndpoint, status.Value, statusReason, eventsResponse.StackEvents);
             }
         }
 

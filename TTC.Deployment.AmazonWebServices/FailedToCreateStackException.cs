@@ -1,11 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Amazon;
+using Amazon.CloudFormation.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
     public class FailedToCreateStackException : Exception
     {
-        public FailedToCreateStackException(string stackName, string status, string statusReason)
-            : base(string.Format("Failed to create stack {0}: {1}\n{2}", stackName, status, statusReason))
+        public FailedToCreateStackException(string stackName, RegionEndpoint awsEndpoint, string status, string statusReason, IEnumerable<StackEvent> stackEvents)
+            : base(string.Format("Failed to create stack {0} (in {1}): {2}\n{3}\n\nEVENTS:\n\n{4}",
+                stackName, awsEndpoint, status, statusReason, string.Join(Environment.NewLine, stackEvents.Select(e => e.ResourceType + ": " + e.ResourceStatusReason).ToArray())))
         {
         }
     }
