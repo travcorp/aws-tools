@@ -13,6 +13,8 @@ using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -70,8 +72,9 @@ namespace TTC.Deployment.AmazonWebServices
             });
 
             WaitForStack(stackName);
-            var stack =
-                _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName}).Stacks.First();
+            var stack = _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName}).Stacks.First();
+
+            SaveStackOutput(stack);
 
             return new Stack
             {
@@ -95,6 +98,24 @@ namespace TTC.Deployment.AmazonWebServices
             {
                 var eventsResponse = _cloudFormationClient.DescribeStackEvents(new DescribeStackEventsRequest { StackName = stackName });
                 throw new FailedToCreateStackException(stackName, _awsConfiguration.AwsEndpoint, status.Value, statusReason, eventsResponse.StackEvents);
+            }
+        }
+
+        void SaveStackOutput(Amazon.CloudFormation.Model.Stack stack)
+        {
+            if (stack.Outputs == null || stack.Outputs.Count == 0)
+                return;
+
+            var jsonOutput = new JObject();
+            foreach (var output in stack.Outputs)
+            {
+                jsonOutput.Add(output.OutputKey, JObject.Parse(output.OutputValue));
+            }
+
+            using (var file = File.CreateText(_awsConfiguration.StackOutputFile))
+            using (var writer = new JsonTextWriter(file))
+            {
+                jsonOutput.WriteTo(writer);
             }
         }
 

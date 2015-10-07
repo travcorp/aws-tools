@@ -15,7 +15,8 @@ namespace AWSCloudProvision
             var deployer = new Deployer(new AwsConfiguration
             {
                 AwsEndpoint = RegionEndpoint.USEast1,
-                Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort }
+                Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort },
+                StackOutputFile = options.StackOutputFile
             });
             deployer.CreateStack(new StackTemplate
             {
@@ -41,6 +42,9 @@ namespace AWSCloudProvision
 
         [Option('x', "proxyPort", Required = false, HelpText = "The proxy port")]
         public int ProxyPort { get; set; }
+
+        [Option('o', "stackOutputFile", Required = false, HelpText = "File path where stack output will be saved after stack creation")]
+        public string StackOutputFile { get; set; }
 
         [HelpOption]
         public string GetUsage()
