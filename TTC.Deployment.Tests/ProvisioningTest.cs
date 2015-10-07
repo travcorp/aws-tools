@@ -63,6 +63,8 @@ namespace TTC.Deployment.Tests
             }
 
             Assert.AreEqual(status, StackStatus.CREATE_COMPLETE);
+
+
         }
 
         private void DeletePreviousTestStack()
