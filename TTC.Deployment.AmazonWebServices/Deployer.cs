@@ -85,6 +85,9 @@ namespace TTC.Deployment.AmazonWebServices
 
         List<Parameter> GetStackParameters()
         {
+            if (String.IsNullOrWhiteSpace(_awsConfiguration.ParametersFile))
+                return null;
+
             List<Parameter> returnList = new List<Parameter>();
 
             using (var file = File.OpenText(_awsConfiguration.ParametersFile))
