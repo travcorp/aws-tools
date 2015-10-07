@@ -32,7 +32,9 @@ namespace TTC.Deployment.Tests
                 Bucket = "a-new-releases",
                 RoleName = "SomeNewRole",
                 AwsEndpoint = RegionEndpoint.USEast1,
-                Proxy = new AwsProxy()
+                Proxy = new AwsProxy(),
+                ProfileName = "dev",
+                ProfilesLocation = "."
             };
             _s3Client = new AmazonS3Client(_awsConfiguration.AwsEndpoint);
             _iamClient = new AmazonIdentityManagementServiceClient(_awsConfiguration.AwsEndpoint);

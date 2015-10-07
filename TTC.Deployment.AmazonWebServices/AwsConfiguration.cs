@@ -11,6 +11,9 @@ namespace TTC.Deployment.AmazonWebServices
         public string RoleName { get; set; }
         public RegionEndpoint AwsEndpoint { get; set; }
         public AwsProxy Proxy { get; set; }
+        public string DeployToAutoScalingGroups { get; set; }
+        public string ProfileName { get; set; }
+        public string ProfilesLocation { get; set; }
     }
 
     public class AwsProxy 

@@ -11,8 +11,10 @@ using Amazon.CodeDeploy;
 using Amazon.CodeDeploy.Model;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
+using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.AutoScaling;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -23,11 +25,20 @@ namespace TTC.Deployment.AmazonWebServices
         private readonly AmazonS3Client _s3Client;
         private readonly AmazonIdentityManagementServiceClient _iamClient;
         private readonly AwsConfiguration _awsConfiguration;
+        private readonly AmazonAutoScalingClient _autoScalingClient;
 
-        public Deployer(AwsConfiguration awsConfiguration) {
+        public Deployer(AwsConfiguration awsConfiguration)
+        {
             _awsConfiguration = awsConfiguration;
 
+            AWSCredentials profile;
+            if (!String.IsNullOrWhiteSpace(_awsConfiguration.ProfileName) && !String.IsNullOrWhiteSpace(_awsConfiguration.ProfilesLocation))
+                profile = new StoredProfileAWSCredentials(_awsConfiguration.ProfileName, _awsConfiguration.ProfilesLocation);
+            else
+                profile = new EnvironmentAWSCredentials();
+
             _codeDeployClient = new AmazonCodeDeployClient(
+                profile,
                 new AmazonCodeDeployConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -35,6 +46,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _cloudFormationClient = new AmazonCloudFormationClient(
+                profile,
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -42,6 +54,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _s3Client = new AmazonS3Client(
+                profile,
                 new AmazonS3Config {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -49,9 +62,17 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _iamClient = new AmazonIdentityManagementServiceClient(
+                profile,
                 new AmazonIdentityManagementServiceConfig  {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
+                    ProxyPort = awsConfiguration.Proxy.Port
+                });
+
+            _autoScalingClient = new AmazonAutoScalingClient(
+                new AmazonAutoScalingConfig {
+                    RegionEndpoint = awsConfiguration.AwsEndpoint,
+                    ProxyHost = awsConfiguration.Proxy.Host,
                     ProxyPort = awsConfiguration.Proxy.Port
                 });
         }
@@ -160,22 +181,43 @@ namespace TTC.Deployment.AmazonWebServices
 
             try
             {
-                _codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
+                if (String.IsNullOrWhiteSpace(_awsConfiguration.DeployToAutoScalingGroups) 
+                    || _awsConfiguration.DeployToAutoScalingGroups.Equals("false", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    ApplicationName =
-                        CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName),
-                    DeploymentGroupName = deploymentGroupName,
-                    ServiceRoleArn = getRoleResponse.Role.Arn,
-                    Ec2TagFilters = new List<EC2TagFilter>
+                    _codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
                     {
-                        new EC2TagFilter
+                        ApplicationName = CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName),
+                        DeploymentGroupName = deploymentGroupName,
+                        ServiceRoleArn = getRoleResponse.Role.Arn,
+                        Ec2TagFilters = new List<EC2TagFilter>
                         {
-                            Type = EC2TagFilterType.KEY_AND_VALUE,
-                            Key = "DeploymentRole",
-                            Value = deploymentGroupName
+                            new EC2TagFilter
+                            {
+                                Type = EC2TagFilterType.KEY_AND_VALUE,
+                                Key = "DeploymentRole",
+                                Value = deploymentGroupName
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                else if (_awsConfiguration.DeployToAutoScalingGroups.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var group = _autoScalingClient.DescribeAutoScalingGroups().AutoScalingGroups.FirstOrDefault(asg => asg.Tags.Any(t => t.Key == "DeploymentRole" && t.Value == deploymentGroupName));
+
+                    if (group == null)
+                        throw new ApplicationException(String.Format("Auto scaling group with DeploymentRole {0} does not exist.", deploymentGroupName));
+
+                    _codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
+                    {
+                        ApplicationName = CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName),
+                        DeploymentGroupName = deploymentGroupName,
+                        ServiceRoleArn = getRoleResponse.Role.Arn,
+                        AutoScalingGroups = new List<string> { group.AutoScalingGroupName }
+                    });
+                }
+                else
+                    throw new ApplicationException("Invalid value of DeployToAutoScalingGroups parameter.");
+
             }
             catch (DeploymentGroupAlreadyExistsException)
             {

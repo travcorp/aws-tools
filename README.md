@@ -26,6 +26,8 @@ Optional:
  - __region__                   *AWSRegion one of us-east-1, us-west-1, us-west-2, etc*
  - __proxyHost__                *Host of proxy server if you need to use one*
  - __proxyPort__                *Port of proxy server if you need to use one*
+ - __profileName__              *name of the IAM profile to be used when accessing AWS API*
+ - __profilesLocation__         *path to credentials file which contains all IAM profiles*
 
 `AWSProvisionCloud --stackName MyStack --templatePath c:\some_app\example-windows-vpc-template.json`
 
@@ -43,6 +45,9 @@ Requires:
  - __roleName__                     *name of IAM role to create or use for S3/CodeDeploy permissions*
  - __assumeRoleTrustDocument__      *local path to an IAM role trust file - see below*
  - __IAMRolePolicyDocumentPath__    *local path to an s3 policy file - see below*
+ - __profileName__                  *name of the IAM profile to be used when accessing AWS API*
+ - __profilesLocation__             *path to credentials file which contains all IAM profiles*
+ 
 
 `AWSS3Push  --version 1.1.2 --buildDirectoryPath C:\some_app\ExampleRevisions --applicationSetName someTestBuild --assumeRoleTrustDocument some_app\CodeDeployRole\code-deploy-policy.json --IAMRolePolicyDocumentPath some_app\CodeDeployRole\code-deploy-trust.json --bucketName testReleases`
 
@@ -96,6 +101,9 @@ Requires:
  - __IAMRolePolicyDocumentPath__  *local path to code deploy policy file - see below*
  - __s3Bucket__                   *name of the s3Bucket you would like to pick your build up from (as defined in your code deploy trust file)*
  - __roleName__                   *name of IAM role to create or use for S3/CodeDeploy permissions*
+ - __profileName__                *name of the IAM profile to be used when accessing AWS API*
+ - __profilesLocation__           *path to credentials file which contains all IAM profiles*
+ - __deployToAutoScalingGroups__  *Can be true or false. Defines if deployment is going to individual instances or deployment groups*
 
  Optional:
  - __proxyHost__                *Host of proxy server if you need to use one*
