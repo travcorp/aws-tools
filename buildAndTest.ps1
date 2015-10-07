@@ -1,3 +1,9 @@
+trap
+{
+    write-output $_
+    exit 666
+}
+
 $msbuild = (Join-Path $env:winDir "Microsoft.NET\Framework64\v4.0.30319\MSBuild")
 
 & $msbuild .\TTC.Deployment.sln
