@@ -11,6 +11,7 @@ using Amazon.CodeDeploy;
 using Amazon.CodeDeploy.Model;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
+using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 
@@ -24,10 +25,18 @@ namespace TTC.Deployment.AmazonWebServices
         private readonly AmazonIdentityManagementServiceClient _iamClient;
         private readonly AwsConfiguration _awsConfiguration;
 
-        public Deployer(AwsConfiguration awsConfiguration) {
+        public Deployer(AwsConfiguration awsConfiguration)
+        {
             _awsConfiguration = awsConfiguration;
 
+            AWSCredentials profile;
+            if (!String.IsNullOrWhiteSpace(_awsConfiguration.ProfileName) && !String.IsNullOrWhiteSpace(_awsConfiguration.ProfilesLocation))
+                profile = new StoredProfileAWSCredentials(_awsConfiguration.ProfileName, _awsConfiguration.ProfilesLocation);
+            else
+                profile = new EnvironmentAWSCredentials();
+
             _codeDeployClient = new AmazonCodeDeployClient(
+                profile,
                 new AmazonCodeDeployConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -35,6 +44,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _cloudFormationClient = new AmazonCloudFormationClient(
+                profile,
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -42,6 +52,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _s3Client = new AmazonS3Client(
+                profile,
                 new AmazonS3Config {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -49,6 +60,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _iamClient = new AmazonIdentityManagementServiceClient(
+                profile,
                 new AmazonIdentityManagementServiceConfig  {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
