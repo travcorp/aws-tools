@@ -432,6 +432,10 @@
     "elasticIpUrl" : {
       "Value" : { "Fn::Join" : ["", ["http://", { "Ref" : "webServerEIP" } ]] },
       "Description" : "The public IP address"
+    },
+	"Output1" : {
+      "Value" : "Value1",
+      "Description" : "Some test output"
     }
   }
 }
