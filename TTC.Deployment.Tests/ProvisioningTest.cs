@@ -7,6 +7,7 @@ using Amazon;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
 using NUnit.Framework;
+using Newtonsoft.Json.Linq;
 using TTC.Deployment.AmazonWebServices;
 
 namespace TTC.Deployment.Tests
@@ -63,6 +64,19 @@ namespace TTC.Deployment.Tests
             }
 
             Assert.AreEqual(status, StackStatus.CREATE_COMPLETE);
+
+            using (var file = File.OpenText(_awsConfiguration.StackOutputFile))
+            {
+                var outputsInFile = JObject.Parse(file.ReadToEnd());
+
+                foreach (var outputInFile in outputsInFile)
+                {
+                    if (outputInFile.Key == "Output1")
+                    {
+                        Assert.AreEqual("Value1", outputInFile.Value.First.Value<string>());
+                    }
+                }
+            }
         }
 
         private void DeletePreviousTestStack()
