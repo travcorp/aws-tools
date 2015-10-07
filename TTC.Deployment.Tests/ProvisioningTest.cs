@@ -73,7 +73,7 @@ namespace TTC.Deployment.Tests
                 {
                     if (outputInFile.Key == "Output1")
                     {
-                        Assert.AreEqual("Value1", outputInFile.Value.First.Value<string>());
+                        Assert.AreEqual("Value1", outputInFile.Value.ToString());
                     }
                 }
             }
