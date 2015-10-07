@@ -112,6 +112,7 @@
                 ],
                 "NetworkInterfaces": [
                     {
+						"AssociatePublicIpAddress": true,
                         "DeleteOnTermination": "true",
                         "Description": "Primary network interface",
                         "DeviceIndex": 0,
@@ -198,6 +199,7 @@
                 ],
                 "NetworkInterfaces": [
                     {
+						"AssociatePublicIpAddress": true,
                         "DeleteOnTermination": "true",
                         "Description": "Primary network interface",
                         "DeviceIndex": 0,
@@ -386,6 +388,18 @@
                     "Ref": "securityGroup1"
                 },
                 "IpProtocol": "-1",
+                "CidrIp": "0.0.0.0/0"
+            }
+        },
+        "egress2": {
+            "Type": "AWS::EC2::SecurityGroupEgress",
+            "Properties": {
+                "GroupId": {
+                    "Ref": "securityGroup1"
+                },
+                "IpProtocol": "tcp",
+                "FromPort": "80",
+                "ToPort": "80",
                 "CidrIp": "0.0.0.0/0"
             }
         }
