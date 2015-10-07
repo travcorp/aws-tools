@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTC.Deployment.Tests", "TTC.Deployment.Tests\TTC.Deployment.Tests.csproj", "{3E190FC6-4A21-4477-9792-EBB4C3FE12A4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TTC.Deployment.AmazonWebServices", "TTC.Deployment.AmazonWebServices\TTC.Deployment.AmazonWebServices.csproj", "{7B4BF19E-65F5-48F6-8B4F-4A390ABAC003}"
@@ -12,6 +10,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSS3Push", "AWSS3Push\AWSS3Push.csproj", "{1A4C0479-76A5-493F-90B0-FADEC58E3E37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSPushAndDeploy", "AWSDeployCode\AWSPushAndDeploy.csproj", "{A3154A1F-466E-4733-A264-83D620A9A823}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FF310DEB-3CA1-49EC-8DB4-A53D66763DC9}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
