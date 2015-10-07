@@ -65,7 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
-    <Content Include="ExampleRevisions\HelloWorld-Empty\Wtf\wtf.txt" />
+    <Content Include="ExampleRevisions\HelloWorld-Empty\Wtf\wtf.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="CodeDeployRole\code-deploy-trust.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -73,6 +75,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="CodeDeployRole\code-deploy-policy.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="example-windows-vpc-autoscaling-group-template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="example-windows-vpc-template.json">
