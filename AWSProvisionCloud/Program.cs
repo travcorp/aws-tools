@@ -14,7 +14,7 @@ namespace AWSCloudProvision
 
             var deployer = new Deployer(new AwsConfiguration
             {
-                AwsEndpoint = RegionEndpoint.USEast1,
+                AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
                 Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort }
             });
             deployer.CreateStack(new StackTemplate

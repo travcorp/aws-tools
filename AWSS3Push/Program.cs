@@ -18,7 +18,7 @@ namespace AWSS3Push
                 IamRolePolicyDocument = options.S3AccessPolicyDocumentPath,
                 Bucket = options.BucketName,
                 RoleName = "S3-Push",
-                AwsEndpoint = RegionEndpoint.USEast1
+                AwsEndpoint = RegionEndpoint.GetBySystemName(options.RegionEndpoint)
             });
 
             deployer.PushRevision(new ApplicationSetRevision
@@ -49,6 +49,9 @@ namespace AWSS3Push
 
         [Option('n', "bucketName", Required = true, HelpText = "S3 bucket name to create / use")]
         public string BucketName { get; set; }
+
+        [Option('e', "regionEndpoint", Required = false, HelpText = "Amazon region endpoint", DefaultValue = "us-east-1")]
+        public string RegionEndpoint { get; set; }
 
         [HelpOption]
         public string GetUsage()
