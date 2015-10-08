@@ -31,7 +31,7 @@ namespace TTC.Deployment.Tests
                 AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "./CodeDeployRole", "code-deploy-trust.json"),
                 Bucket = "a-new-releases",
                 RoleName = "SomeNewRole",
-                AwsEndpoint = RegionEndpoint.USEast1,
+                AwsEndpoint = RegionEndpoint.USWest2,
                 Proxy = new AwsProxy()
             };
             _s3Client = new AmazonS3Client(_awsConfiguration.AwsEndpoint);

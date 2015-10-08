@@ -14,11 +14,14 @@ namespace TTC.Deployment.Tests
         private AwsConfiguration _awsConfiguration;
         private Deployer _deployer;
         private Stack _stack;
-        const string StackName = "TestEnv2";
+        const string StackName = "AwsToolsTestVPC";
+        static private bool _hasCreatedStack;
 
-        [TestFixtureSetUp]
-        public void SetUp()
+        [SetUp]
+        public void EnsureStackExists()
         {
+            if (_hasCreatedStack) return;
+
             ConfigurationManager.AppSettings["AWSProfileName"] = "default";
             _awsConfiguration = new AwsConfiguration
             {
@@ -26,7 +29,7 @@ namespace TTC.Deployment.Tests
                 IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "CodeDeployRole", "code-deploy-policy.json"),
                 Bucket = "aws-test-releases",
                 RoleName = "CodeDeployRole",
-                AwsEndpoint = RegionEndpoint.USEast1,
+                AwsEndpoint = RegionEndpoint.USWest2,
                 Proxy = new AwsProxy()
             };
 
@@ -38,6 +41,7 @@ namespace TTC.Deployment.Tests
                 StackName = StackName,
                 TemplatePath = @".\example-windows-vpc-template.json"
             });
+            _hasCreatedStack = true;
         }
 
         [TestFixtureTearDown]

@@ -27,7 +27,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "CidrBlock": "10.0.0.0/24",
-        "AvailabilityZone": "us-east-1a",
+        "AvailabilityZone": "us-west-2a",
         "VpcId": {
           "Ref": "vpc1"
         },
@@ -75,9 +75,8 @@
     "WebServerGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "Properties": {
-        "AvailabilityZones": {
-          "Fn::GetAZs": ""
-        },
+		"HealthCheckGracePeriod": "240",
+		"VPCZoneIdentifier": [{ "Ref": "publicSubnet1" }], 
         "LaunchConfigurationName": {
           "Ref": "webServerLaunchConfig"
         },
@@ -96,18 +95,16 @@
                 "_",
                 "WebLayer"
               ]
-
             ]
-          }
+          },
+          "PropagateAtLaunch" : "true"
         }]
       }
     },
     "ElasticLoadBalancer": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+	  "DependsOn": ["vpc1"],
       "Properties": {
-        "AvailabilityZones": {
-          "Fn::GetAZs": ""
-        },
         "CrossZone": "true",
         "Listeners": [{
           "LoadBalancerPort": "80",
@@ -116,17 +113,19 @@
         }],
         "HealthCheck": {
           "Target": "HTTP:80/",
-          "HealthyThreshold": "3",
+          "HealthyThreshold": "2",
           "UnhealthyThreshold": "5",
           "Interval": "30",
           "Timeout": "5"
-        }
+        },
+		"Subnets" : [{ "Ref": "publicSubnet1" }]
       }
     },
     "webServerLaunchConfig": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Metadata": {},
       "Properties": {
+        "AssociatePublicIpAddress" : true,
         "IamInstanceProfile": {
           "Ref": "instanceProfile1"
         },
@@ -138,59 +137,23 @@
                 "powershell.exe add-windowsfeature web-webserver -includeallsubfeature -logpath $env:temp\\webserver_addrole.log \n",
                 "powershell.exe add-windowsfeature web-mgmt-tools -includeallsubfeature -logpath $env:temp\\mgmttools_addrole.log \n",
                 "powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
-                "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-east-1/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
+                "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-west-2/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
                 "powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n",
-                "cfn-signal.exe -e %ERRORLEVEL% ", {
-                  "Fn::Base64": {
-                    "Ref": "webServerWaitHandle"
-                  }
-                },
-                "\n",
                 "</script>\n"
               ]
             ]
           }
         },
-
-        "DisableApiTermination": "false",
-        "InstanceInitiatedShutdownBehavior": "stop",
-        "ImageId": "ami-c9cea0ac",
+        "ImageId": "ami-e3c8d5d3",
         "InstanceType": "t2.small",
         "KeyName": "WindowsTestKey",
-        "Monitoring": "false",
-        "NetworkInterfaces": [{
-          "AssociatePublicIpAddress": true,
-          "DeleteOnTermination": "true",
-          "Description": "Primary network interface",
-          "DeviceIndex": 0,
-          "SubnetId": {
-            "Ref": "publicSubnet1"
-          },
-          "PrivateIpAddresses": [{
-            "PrivateIpAddress": "10.0.0.219",
-            "Primary": "true"
-          }],
-          "GroupSet": [{
-            "Ref": "securityGroup1"
-          }]
+        "SecurityGroups": [{
+          "Ref": "securityGroup1"
         }]
       }
     },
 
-    "webServerWaitHandle": {
-      "Type": "AWS::CloudFormation::WaitConditionHandle"
-    },
-
-    "webServerWaitCondition": {
-      "Type": "AWS::CloudFormation::WaitCondition",
-      "DependsOn": ["webServerLaunchConfig"],
-      "Properties": {
-        "Handle": {
-          "Ref": "webServerWaitHandle"
-        },
-        "Timeout": "1200"
-      }
-    },
+ 
     "securityGroup1": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {

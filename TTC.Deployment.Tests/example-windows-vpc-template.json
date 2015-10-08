@@ -27,7 +27,7 @@
             "Type": "AWS::EC2::Subnet",
             "Properties": {
                 "CidrBlock": "10.0.0.0/24",
-                "AvailabilityZone": "us-east-1a",
+                "AvailabilityZone": "us-west-2",
                 "VpcId": { "Ref": "vpc1" },
                 "Tags": [
                     { "Key": "Name", "Value": "PublicSubnet" }
@@ -77,7 +77,7 @@
                                 "powershell.exe add-windowsfeature web-webserver -includeallsubfeature -logpath $env:temp\\webserver_addrole.log \n",
                                 "powershell.exe add-windowsfeature web-mgmt-tools -includeallsubfeature -logpath $env:temp\\mgmttools_addrole.log \n",
                                 "powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
-                                "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-east-1/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
+                                "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-west-2/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
                                 "powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n",
                                 "cfn-signal.exe -e %ERRORLEVEL% ",
                                 { "Fn::Base64": { "Ref": "webServerWaitHandle" } },
@@ -90,7 +90,7 @@
 
                 "DisableApiTermination": "false",
                 "InstanceInitiatedShutdownBehavior": "stop",
-                "ImageId": "ami-c9cea0ac",
+                "ImageId": "ami-e3c8d5d3",
                 "InstanceType": "t2.small",
                 "KeyName": "WindowsTestKey",
                 "Monitoring": "false",
@@ -164,7 +164,7 @@
                                 "powershell.exe add-windowsfeature web-webserver -includeallsubfeature -logpath $env:temp\\webserver_addrole.log \n",
                                 "powershell.exe add-windowsfeature web-mgmt-tools -includeallsubfeature -logpath $env:temp\\mgmttools_addrole.log \n",
                                 "powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
-                                "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-east-1/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
+                                "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-west-2/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
                                 "powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n",
                                 "cfn-signal.exe -e %ERRORLEVEL% ",
                                 { "Fn::Base64": { "Ref": "internalApiServerWaitHandle" } },
@@ -177,7 +177,7 @@
 
                 "DisableApiTermination": "false",
                 "InstanceInitiatedShutdownBehavior": "stop",
-                "ImageId": "ami-c9cea0ac",
+                "ImageId": "ami-e3c8d5d3",
                 "InstanceType": "t2.small",
                 "KeyName": "WindowsTestKey",
                 "Monitoring": "false",

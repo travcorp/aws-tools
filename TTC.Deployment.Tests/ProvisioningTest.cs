@@ -29,7 +29,7 @@ namespace TTC.Deployment.Tests
                 IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "CodeDeployRole", "code-deploy-policy.json"),
                 Bucket = "test-releases",
                 RoleName = "CodeDeployRole",
-                AwsEndpoint =  RegionEndpoint.USEast1,
+                AwsEndpoint = RegionEndpoint.USWest2,
                 Proxy = new AwsProxy()
             };
             _cloudFormationClient = new AmazonCloudFormationClient(new AmazonCloudFormationConfig { RegionEndpoint = _awsConfiguration.AwsEndpoint });
