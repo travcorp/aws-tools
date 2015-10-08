@@ -27,7 +27,7 @@
             "Type": "AWS::EC2::Subnet",
             "Properties": {
                 "CidrBlock": "10.0.0.0/24",
-                "AvailabilityZone": "us-west-2",
+                "AvailabilityZone": "us-west-2a",
                 "VpcId": { "Ref": "vpc1" },
                 "Tags": [
                     { "Key": "Name", "Value": "PublicSubnet" }
