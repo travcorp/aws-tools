@@ -17,6 +17,7 @@ namespace AWSCloudProvision
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
                 Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort },
                 ParametersFile = options.ParametersFile
+                StackOutputFile = options.StackOutputFile
             });
             deployer.CreateStack(new StackTemplate
             {
@@ -45,6 +46,9 @@ namespace AWSCloudProvision
 
         [Option('p', "parametersFile", Required = false, HelpText = "Path to the file which specifies stack template parameters")]
         public string ParametersFile { get; set; }
+        
+        [Option('o', "stackOutputFile", Required = false, HelpText = "File path where stack output will be saved after stack creation")]
+        public string StackOutputFile { get; set; }
 
         [HelpOption]
         public string GetUsage()

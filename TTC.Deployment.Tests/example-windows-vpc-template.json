@@ -426,5 +426,9 @@
 				"CidrIp" : "0.0.0.0/0"
 			}
 		}
+    },
+	"Output1" : {
+      "Value" : "Value1",
+      "Description" : "Some test output"
 	}
 }
