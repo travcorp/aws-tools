@@ -18,9 +18,7 @@ namespace AWSS3Push
                 IamRolePolicyDocument = options.S3AccessPolicyDocumentPath,
                 Bucket = options.BucketName,
                 RoleName = "S3-Push",
-                AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
-                ProfileName = options.ProfileName,
-                ProfilesLocation = options.ProfilesLocation
+                AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region)
             });
 
             deployer.PushRevision(new ApplicationSetRevision
@@ -54,12 +52,6 @@ namespace AWSS3Push
 
         [Option('r', "Region", HelpText = "AWS Region (e.g. us-east-1)", DefaultValue = "us-east-1")]
         public string Region { get; set; }
-
-        [Option('f', "profileName", Required = false, HelpText = "Name of the IAM profile to use with AWS API")]
-        public string ProfileName { get; set; }
-
-        [Option('l', "profilesLocation", Required = false, HelpText = "Path to the IAM profiles file")]
-        public string ProfilesLocation { get; set; }
 
         [HelpOption]
         public string GetUsage()

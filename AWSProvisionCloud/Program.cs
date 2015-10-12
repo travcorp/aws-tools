@@ -15,9 +15,7 @@ namespace AWSCloudProvision
             var deployer = new Deployer(new AwsConfiguration
             {
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
-                Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort },
-                ProfileName = options.ProfileName,
-                ProfilesLocation = options.ProfilesLocation
+                Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort }
             });
             deployer.CreateStack(new StackTemplate
             {
@@ -43,12 +41,6 @@ namespace AWSCloudProvision
 
         [Option('x', "proxyPort", Required = false, HelpText = "The proxy port")]
         public int ProxyPort { get; set; }
-
-        [Option('f', "profileName", Required = false, HelpText = "Name of the IAM profile to use with AWS API")]
-        public string ProfileName { get; set; }
-
-        [Option('l', "profilesLocation", Required = false, HelpText = "Path to the IAM profiles file")]
-        public string ProfilesLocation { get; set; }
 
         [HelpOption]
         public string GetUsage()
