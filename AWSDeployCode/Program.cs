@@ -21,7 +21,7 @@ namespace AWSPushAndDeploy
                 Bucket = options.BucketName,
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.RegionEndpoint), 
-                Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort }
+                Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort },
                 DeployToAutoScalingGroups = options.DeployToAutoScalingGroups,
             });
             var revision = deployer.PushRevision(new ApplicationSetRevision

@@ -74,6 +74,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _autoScalingClient = new AmazonAutoScalingClient(
+                sessionCredentials,
                 new AmazonAutoScalingConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint,
                     ProxyHost = awsConfiguration.Proxy.Host,
