@@ -16,7 +16,7 @@ namespace AWSCloudProvision
             {
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
                 Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort },
-                ParametersFile = options.ParametersFile
+                ParametersFile = options.ParametersFile,
                 StackOutputFile = options.StackOutputFile
             });
             deployer.CreateStack(new StackTemplate
