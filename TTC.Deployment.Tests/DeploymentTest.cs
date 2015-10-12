@@ -27,7 +27,7 @@ namespace TTC.Deployment.Tests
             {
                 AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "CodeDeployRole", "code-deploy-trust.json"),
                 IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "CodeDeployRole", "code-deploy-policy.json"),
-                Bucket = "aws-test-releases",
+                Bucket = "aws-deployment-tools-tests",
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.USWest2,
                 Proxy = new AwsProxy()
