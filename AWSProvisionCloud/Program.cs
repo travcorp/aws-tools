@@ -14,7 +14,7 @@ namespace AWSCloudProvision
 
             var deployer = new Deployer(new AwsConfiguration
             {
-                AwsEndpoint = RegionEndpoint.USEast1,
+                AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
                 Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort },
                 ProfileName = options.ProfileName,
                 ProfilesLocation = options.ProfilesLocation
@@ -35,7 +35,7 @@ namespace AWSCloudProvision
         [Option('t', "templatePath", Required = true, HelpText = "Path to cloud formation template")]
         public string TemplatePath { get; set; }
 
-        [Option('r', "Region", HelpText = "AWS Region (e.g. us-east-1")]
+        [Option('r', "Region", HelpText = "AWS Region (e.g. us-east-1)", DefaultValue = "us-east-1")]
         public string Region { get; set; }
 
         [Option('h', "proxyHost", Required = false, HelpText = "The proxy host")]

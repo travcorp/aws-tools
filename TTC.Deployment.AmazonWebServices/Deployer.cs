@@ -14,6 +14,8 @@ using Amazon.IdentityManagement.Model;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.SecurityToken;
+using Amazon.SecurityToken.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -24,19 +26,19 @@ namespace TTC.Deployment.AmazonWebServices
         private readonly AmazonS3Client _s3Client;
         private readonly AmazonIdentityManagementServiceClient _iamClient;
         private readonly AwsConfiguration _awsConfiguration;
+        private readonly AmazonSecurityTokenServiceClient _securityTokenServiceClient;
 
         public Deployer(AwsConfiguration awsConfiguration)
         {
             _awsConfiguration = awsConfiguration;
 
-            AWSCredentials profile;
-            if (!String.IsNullOrWhiteSpace(_awsConfiguration.ProfileName) && !String.IsNullOrWhiteSpace(_awsConfiguration.ProfilesLocation))
-                profile = new StoredProfileAWSCredentials(_awsConfiguration.ProfileName, _awsConfiguration.ProfilesLocation);
-            else
-                profile = new EnvironmentAWSCredentials();
+            // Get session credentials
+            _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(awsConfiguration.AwsEndpoint);
+            var credentials = _securityTokenServiceClient.GetSessionToken(new GetSessionTokenRequest {DurationSeconds = 3600}).Credentials;
+            var sessionCredentials = new SessionAWSCredentials(credentials.AccessKeyId, credentials.SecretAccessKey, credentials.SessionToken);
 
             _codeDeployClient = new AmazonCodeDeployClient(
-                profile,
+                sessionCredentials,
                 new AmazonCodeDeployConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -44,7 +46,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _cloudFormationClient = new AmazonCloudFormationClient(
-                profile,
+                sessionCredentials,
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -52,7 +54,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _s3Client = new AmazonS3Client(
-                profile,
+                sessionCredentials,
                 new AmazonS3Config {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -60,7 +62,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _iamClient = new AmazonIdentityManagementServiceClient(
-                profile,
+                sessionCredentials,
                 new AmazonIdentityManagementServiceConfig  {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
