@@ -16,6 +16,8 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -50,7 +52,7 @@ namespace TTC.Deployment.AmazonWebServices
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
-                    ProxyPort = awsConfiguration.Proxy.Port
+                    ProxyPort = awsConfiguration.Proxy.Port,
                 });
 
             _s3Client = new AmazonS3Client(
@@ -80,7 +82,8 @@ namespace TTC.Deployment.AmazonWebServices
                 StackName = stackName,
                 TemplateBody = File.ReadAllText(templatePath),
                 Capabilities = new List<string> { Capability.CAPABILITY_IAM },
-                DisableRollback = true
+                DisableRollback = true,
+                Parameters = GetStackParameters()
             });
 
             WaitForStack(stackName);
@@ -92,6 +95,27 @@ namespace TTC.Deployment.AmazonWebServices
                 StackName = stackName,
                 Outputs = stack.Outputs.ToDictionary(x => x.OutputKey, x => x.OutputValue)
             };
+        }
+
+        List<Parameter> GetStackParameters()
+        {
+            if (String.IsNullOrWhiteSpace(_awsConfiguration.ParametersFile))
+                return null;
+
+            List<Parameter> returnList = new List<Parameter>();
+
+            using (var file = File.OpenText(_awsConfiguration.ParametersFile))
+            {
+                var parametersInFile = JObject.Parse(file.ReadToEnd());
+
+                foreach (var paramInFile in parametersInFile)
+                {
+                    var parameter = new Parameter { ParameterKey = paramInFile.Key, ParameterValue = paramInFile.Value.ToString() };
+                    returnList.Add(parameter);
+                }
+            }
+
+            return returnList;
         }
 
         void WaitForStack(string stackName)

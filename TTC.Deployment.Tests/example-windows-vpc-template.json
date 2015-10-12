@@ -1,6 +1,16 @@
 {
 	"AWSTemplateFormatVersion" : "2010-09-09",
 	"Description" : "AWS.Deployment.Tests VPC (Please Delete Me)",
+		"Property1" : {
+			"Type" : "String",
+			"Default" : "",
+			"Description" : "Example property 1."
+		},
+		"Property2" : {
+			"Type" : "String",
+			"Default" : "",
+			"Description" : "Example property 2."
+		}
 	"Resources" : {
 		"instanceProfile1" : {
 			"Type" : "AWS::IAM::InstanceProfile",
@@ -124,7 +134,15 @@
 
 							]
 						}
-					}
+                            },
+							{
+								"Key" : "Propert1"
+								"Value" : {"Ref" : "Property1"}	
+							},
+							{
+								"Key" : "Propert2"
+								"Value" : {"Ref" : "Property2"}	
+							}
 				],
 				"NetworkInterfaces" : [{
 						"DeleteOnTermination" : "true",
@@ -210,7 +228,15 @@
 
 							]
 						}
-					}
+                            },
+							{
+								"Key" : "Propert1"
+								"Value" : {"Ref" : "Property1"}	
+							},
+							{
+								"Key" : "Propert2"
+								"Value" : {"Ref" : "Property2"}	
+							}
 				],
 				"NetworkInterfaces" : [{
 						"DeleteOnTermination" : "true",

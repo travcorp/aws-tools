@@ -10,9 +10,8 @@ namespace TTC.Deployment.AmazonWebServices
         public string Bucket { get; set; }
         public string RoleName { get; set; }
         public RegionEndpoint AwsEndpoint { get; set; }
-        public AwsProxy Proxy { get; set; }
-        public string ProfileName { get; set; }
-        public string ProfilesLocation { get; set; }
+        public AwsProxy Proxy { get; set; }       
+        public string ParametersFile { get; set; }
     }
 
     public class AwsProxy 
