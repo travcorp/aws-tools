@@ -15,6 +15,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.SecurityToken;
+using Amazon.AutoScaling;
 using Amazon.SecurityToken.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,6 +30,7 @@ namespace TTC.Deployment.AmazonWebServices
         private readonly AmazonIdentityManagementServiceClient _iamClient;
         private readonly AwsConfiguration _awsConfiguration;
         private readonly AmazonSecurityTokenServiceClient _securityTokenServiceClient;
+        private readonly AmazonAutoScalingClient _autoScalingClient;
 
         public Deployer(AwsConfiguration awsConfiguration)
         {
@@ -68,6 +70,13 @@ namespace TTC.Deployment.AmazonWebServices
                 new AmazonIdentityManagementServiceConfig  {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
+                    ProxyPort = awsConfiguration.Proxy.Port
+                });
+
+            _autoScalingClient = new AmazonAutoScalingClient(
+                new AmazonAutoScalingConfig {
+                    RegionEndpoint = awsConfiguration.AwsEndpoint,
+                    ProxyHost = awsConfiguration.Proxy.Host,
                     ProxyPort = awsConfiguration.Proxy.Port
                 });
         }
@@ -216,22 +225,43 @@ namespace TTC.Deployment.AmazonWebServices
 
             try
             {
-                _codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
+                if (String.IsNullOrWhiteSpace(_awsConfiguration.DeployToAutoScalingGroups) 
+                    || _awsConfiguration.DeployToAutoScalingGroups.Equals("false", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    ApplicationName =
-                        CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName),
-                    DeploymentGroupName = deploymentGroupName,
-                    ServiceRoleArn = getRoleResponse.Role.Arn,
-                    Ec2TagFilters = new List<EC2TagFilter>
+                    _codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
                     {
-                        new EC2TagFilter
+                        ApplicationName = CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName),
+                        DeploymentGroupName = deploymentGroupName,
+                        ServiceRoleArn = getRoleResponse.Role.Arn,
+                        Ec2TagFilters = new List<EC2TagFilter>
                         {
-                            Type = EC2TagFilterType.KEY_AND_VALUE,
-                            Key = "DeploymentRole",
-                            Value = deploymentGroupName
+                            new EC2TagFilter
+                            {
+                                Type = EC2TagFilterType.KEY_AND_VALUE,
+                                Key = "DeploymentRole",
+                                Value = deploymentGroupName
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                else if (_awsConfiguration.DeployToAutoScalingGroups.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var group = _autoScalingClient.DescribeAutoScalingGroups().AutoScalingGroups.FirstOrDefault(asg => asg.Tags.Any(t => t.Key == "DeploymentRole" && t.Value == deploymentGroupName));
+
+                    if (group == null)
+                        throw new ApplicationException(String.Format("Auto scaling group with DeploymentRole {0} does not exist.", deploymentGroupName));
+
+                    _codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
+                    {
+                        ApplicationName = CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName),
+                        DeploymentGroupName = deploymentGroupName,
+                        ServiceRoleArn = getRoleResponse.Role.Arn,
+                        AutoScalingGroups = new List<string> { group.AutoScalingGroupName }
+                    });
+                }
+                else
+                    throw new ApplicationException("Invalid value of DeployToAutoScalingGroups parameter.");
+
             }
             catch (DeploymentGroupAlreadyExistsException)
             {
