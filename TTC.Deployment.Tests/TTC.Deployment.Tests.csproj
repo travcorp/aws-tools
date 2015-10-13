@@ -75,9 +75,9 @@
     <None Include="CodeDeployRole\code-deploy-policy.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="example-windows-vpc-template.json">
+    <Content Include="example-windows-vpc.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
     <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\ApiLayer\appspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

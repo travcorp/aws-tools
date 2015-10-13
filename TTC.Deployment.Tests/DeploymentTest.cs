@@ -36,7 +36,7 @@ namespace TTC.Deployment.Tests
             _stack = _deployer.CreateStack(new StackTemplate
             {
                 StackName = StackName,
-                TemplatePath = @".\example-windows-vpc-template.json"
+                TemplatePath = @".\example-windows-vpc.template"
             });
         }
 

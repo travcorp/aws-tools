@@ -36,13 +36,17 @@ namespace TTC.Deployment.AmazonWebServices
         {
             _awsConfiguration = awsConfiguration;
 
-            // Get session credentials
             _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(awsConfiguration.AwsEndpoint);
-            var credentials = _securityTokenServiceClient.GetSessionToken(new GetSessionTokenRequest {DurationSeconds = 3600}).Credentials;
-            var sessionCredentials = new SessionAWSCredentials(credentials.AccessKeyId, credentials.SecretAccessKey, credentials.SessionToken);
+            
+            // Either assume role or use credentials from the key store
+            AWSCredentials tempCredentials;
+            if (!String.IsNullOrWhiteSpace(awsConfiguration.AssumeRoleName))
+                tempCredentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest {DurationSeconds = 3600, RoleArn = awsConfiguration.AssumeRoleName}).Credentials;
+            else
+                tempCredentials = new EnvironmentAWSCredentials();
 
             _codeDeployClient = new AmazonCodeDeployClient(
-                sessionCredentials,
+                tempCredentials,
                 new AmazonCodeDeployConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -50,7 +54,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _cloudFormationClient = new AmazonCloudFormationClient(
-                sessionCredentials,
+                tempCredentials,
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -58,7 +62,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _s3Client = new AmazonS3Client(
-                sessionCredentials,
+                tempCredentials,
                 new AmazonS3Config {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -66,7 +70,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _iamClient = new AmazonIdentityManagementServiceClient(
-                sessionCredentials,
+                tempCredentials,
                 new AmazonIdentityManagementServiceConfig  {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -74,7 +78,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _autoScalingClient = new AmazonAutoScalingClient(
-                sessionCredentials,
+                tempCredentials,
                 new AmazonAutoScalingConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint,
                     ProxyHost = awsConfiguration.Proxy.Host,

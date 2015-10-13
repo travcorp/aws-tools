@@ -17,7 +17,8 @@ namespace AWSCloudProvision
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
                 Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort },
                 ParametersFile = options.ParametersFile,
-                StackOutputFile = options.StackOutputFile
+                StackOutputFile = options.StackOutputFile,
+                AssumeRoleName = options.AssumeRoleName
             });
             deployer.CreateStack(new StackTemplate
             {
@@ -49,6 +50,9 @@ namespace AWSCloudProvision
         
         [Option('o', "stackOutputFile", Required = false, HelpText = "File path where stack output will be saved after stack creation")]
         public string StackOutputFile { get; set; }
+
+        [Option('y', "assumeRoleName", Required = false, HelpText = "ARN of the role that will be assumed in AWS API calls")]
+        public string AssumeRoleName { get; set; }
 
         [HelpOption]
         public string GetUsage()

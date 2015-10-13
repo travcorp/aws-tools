@@ -18,7 +18,8 @@ namespace AWSS3Push
                 IamRolePolicyDocument = options.S3AccessPolicyDocumentPath,
                 Bucket = options.BucketName,
                 RoleName = "S3-Push",
-                AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region)
+                AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
+                AssumeRoleName = options.AssumeRoleName
             });
 
             deployer.PushRevision(new ApplicationSetRevision
@@ -52,6 +53,9 @@ namespace AWSS3Push
 
         [Option('r', "Region", HelpText = "AWS Region (e.g. us-east-1)", DefaultValue = "us-east-1")]
         public string Region { get; set; }
+
+        [Option('y', "assumeRoleName", Required = false, HelpText = "ARN of the role that will be assumed in AWS API calls")]
+        public string AssumeRoleName { get; set; }
 
         [HelpOption]
         public string GetUsage()

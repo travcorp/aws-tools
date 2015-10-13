@@ -53,7 +53,7 @@ namespace TTC.Deployment.Tests
             deployer.CreateStack(new StackTemplate
             {
                 StackName = StackName,
-                TemplatePath = @".\example-windows-vpc-template.json"
+                TemplatePath = @".\example-windows-vpc.template"
             });
 
             var status = StackStatus.CREATE_IN_PROGRESS;
