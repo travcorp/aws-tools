@@ -103,10 +103,13 @@
 								"powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
 								"powershell.exe Read-S3Object -BucketName aws-codedeploy-us-east-1/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
 								"powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n",
-								"cfn-signal.exe -e %ERRORLEVEL% ", {
-									"Fn::Base64" : {
-										"Ref" : "webServerWaitHandle"
-									}
+								"cfn-signal -e %ERRORLEVEL%",
+								"    --stack=", {
+									"Ref" : "AWS::StackName"
+								},
+								"    --resource=webServer",
+								"    --region=", {
+									"Ref" : "AWS::Region"
 								},
 								"\n",
 								"</script>\n"
@@ -145,6 +148,7 @@
 							}
 				],
 				"NetworkInterfaces" : [{
+						"AssociatePublicIpAddress" : "true",
 						"DeleteOnTermination" : "true",
 						"Description" : "Primary network interface",
 						"DeviceIndex" : 0,
@@ -162,19 +166,12 @@
 						]
 					}
 				]
-			}
-		},
-		"webServerWaitHandle" : {
-			"Type" : "AWS::CloudFormation::WaitConditionHandle"
-		},
-		"webServerWaitCondition" : {
-			"Type" : "AWS::CloudFormation::WaitCondition",
-			"DependsOn" : ["webServer"],
-			"Properties" : {
-				"Handle" : {
-					"Ref" : "webServerWaitHandle"
-				},
-				"Timeout" : "2000"
+			},
+			"CreationPolicy" : {
+				"ResourceSignal" : {
+					"Count" : "1",
+					"Timeout" : "PT25M"
+				}
 			}
 		},
 		"internalApiServer" : {
@@ -195,10 +192,13 @@
 								"powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
 								"powershell.exe Read-S3Object -BucketName aws-codedeploy-us-east-1/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
 								"powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n",
-								"cfn-signal.exe -e %ERRORLEVEL% ", {
-									"Fn::Base64" : {
-										"Ref" : "internalApiServerWaitHandle"
-									}
+								"cfn-signal -e %ERRORLEVEL%",
+								"    --stack=", {
+									"Ref" : "AWS::StackName"
+								},
+								"    --resource=internalApiServer",
+								"    --region=", {
+									"Ref" : "AWS::Region"
 								},
 								"\n",
 								"</script>\n"
@@ -237,6 +237,7 @@
 							}
 				],
 				"NetworkInterfaces" : [{
+				        "AssociatePublicIpAddress" : "true",
 						"DeleteOnTermination" : "true",
 						"Description" : "Primary network interface",
 						"DeviceIndex" : 0,
@@ -254,19 +255,12 @@
 						]
 					}
 				]
-			}
-		},
-		"internalApiServerWaitHandle" : {
-			"Type" : "AWS::CloudFormation::WaitConditionHandle"
-		},
-		"internalApiServerWaitCondition" : {
-			"Type" : "AWS::CloudFormation::WaitCondition",
-			"DependsOn" : ["internalApiServer"],
-			"Properties" : {
-				"Handle" : {
-					"Ref" : "internalApiServerWaitHandle"
-				},
-				"Timeout" : "2000"
+			},
+			"CreationPolicy" : {
+				"ResourceSignal" : {
+					"Count" : "1",
+					"Timeout" : "PT25M"
+				}
 			}
 		},
 		"securityGroup1" : {
