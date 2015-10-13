@@ -29,7 +29,7 @@ namespace TTC.Deployment.Tests
             {
                 IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "./CodeDeployRole", "s3-policy-new-bucket.json"),
                 AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "./CodeDeployRole", "code-deploy-trust.json"),
-                Bucket = "a-new-releases",
+                Bucket = "s3-push-test",
                 RoleName = "SomeNewRole",
                 AwsEndpoint = RegionEndpoint.USWest2,
                 Proxy = new AwsProxy()
