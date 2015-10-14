@@ -66,6 +66,12 @@
         "webServer": {
             "Type": "AWS::EC2::Instance",
             "Metadata": { },
+			"CreationPolicy" : {
+				"ResourceSignal" : {
+					"Count" : "1",
+					"Timeout" : "PT25M"
+				}
+			},
             "Properties": {
                 "IamInstanceProfile": { "Ref": "instanceProfile1" },
                 "UserData": {
@@ -79,8 +85,14 @@
                                 "powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
                                 "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-west-2/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
                                 "powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n",
-                                "cfn-signal.exe -e %ERRORLEVEL% ",
-                                { "Fn::Base64": { "Ref": "webServerWaitHandle" } },
+                                "cfn-signal -e %ERRORLEVEL%",
+								"    --stack=", {
+									"Ref" : "AWS::StackName"
+								},
+								"    --resource=webServer",
+								"    --region=", {
+									"Ref" : "AWS::Region"
+								},
                                 "\n",
                                 "</script>\n"
                             ]
@@ -135,24 +147,17 @@
             }
         },
 
-        "webServerWaitHandle": {
-            "Type": "AWS::CloudFormation::WaitConditionHandle"
-        },
-
-        "webServerWaitCondition": {
-            "Type": "AWS::CloudFormation::WaitCondition",
-            "DependsOn": [ "webServer" ],
-            "Properties": {
-                "Handle": { "Ref": "webServerWaitHandle" },
-                "Timeout": "1200"
-            }
-        },
-
         "internalApiServer": {
             "Type": "AWS::EC2::Instance",
             "Metadata": {
 
             },
+			"CreationPolicy" : {
+				"ResourceSignal" : {
+					"Count" : "1",
+					"Timeout" : "PT25M"
+				}
+			},
             "Properties": {
                 "IamInstanceProfile": { "Ref": "instanceProfile1" },
                 "UserData": {
@@ -166,9 +171,14 @@
                                 "powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
                                 "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-west-2/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
                                 "powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n",
-                                "cfn-signal.exe -e %ERRORLEVEL% ",
-                                { "Fn::Base64": { "Ref": "internalApiServerWaitHandle" } },
-                                "\n",
+                                "cfn-signal -e %ERRORLEVEL%",
+								"    --stack=", {
+									"Ref" : "AWS::StackName"
+								},
+								"    --resource=internalApiServer",
+								"    --region=", {
+									"Ref" : "AWS::Region"
+								},
                                 "</script>\n"
                             ]
                         ]
@@ -199,7 +209,7 @@
                 ],
                 "NetworkInterfaces": [
                     {
-						"AssociatePublicIpAddress": true,
+                        "AssociatePublicIpAddress": true,
                         "DeleteOnTermination": "true",
                         "Description": "Primary network interface",
                         "DeviceIndex": 0,
@@ -219,19 +229,6 @@
                         ]
                     }
                 ]
-            }
-        },
-
-        "internalApiServerWaitHandle": {
-            "Type": "AWS::CloudFormation::WaitConditionHandle"
-        },
-
-        "internalApiServerWaitCondition": {
-            "Type": "AWS::CloudFormation::WaitCondition",
-            "DependsOn": [ "internalApiServer" ],
-            "Properties": {
-                "Handle": { "Ref": "internalApiServerWaitHandle" },
-                "Timeout": "2000"
             }
         },
 
@@ -403,5 +400,11 @@
                 "CidrIp": "0.0.0.0/0"
             }
         }
-    }
+    },
+	"Outputs" : {
+		"publicDnsName" : {
+			"Value" : { "Fn::GetAtt" : [ "webServer" , "PublicDnsName" ] },
+			"Description" : "The public DNS name"
+		}
+	}
 }

@@ -309,7 +309,7 @@ namespace TTC.Deployment.AmazonWebServices
 
             if(!allTheBuckets.Exists(b =>b.BucketName == bucketName))
             {
-                _s3Client.PutBucket(bucketName);
+                _s3Client.PutBucket(new PutBucketRequest { BucketName = bucketName, UseClientRegion = true });
             }
 
             var putResponse = _s3Client.PutObject(new PutObjectRequest

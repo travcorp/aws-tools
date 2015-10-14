@@ -55,6 +55,7 @@
     <Reference Include="System.Net.Http.WebRequest" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoScalingDeploymentTest.cs" />
     <Compile Include="DeploymentTest.cs" />
     <Compile Include="ProvisioningTest.cs" />
     <Compile Include="Http.cs" />
@@ -65,6 +66,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
+    <Content Include="ExampleRevisions\HelloWorld-AutoScaling\WebLayer\index.aspx">
+      <SubType>ASPXCodeBehind</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExampleRevisions\HelloWorld-Empty\Wtf\wtf.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -81,6 +86,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="example-windows-vpc-template.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExampleRevisions\HelloWorld-AutoScaling\WebLayer\appspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\ApiLayer\appspec.yml">

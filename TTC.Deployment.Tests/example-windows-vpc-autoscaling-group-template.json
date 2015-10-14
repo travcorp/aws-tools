@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "AWS.Deployment.Tests VPC (Please Delete Me)",
+  "Description": "AWS.Deployment.Tests AutoScaling VPC (Please Delete Me)",
   "Parameters": {},
   "Resources": {
     "instanceProfile1": {

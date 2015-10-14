@@ -45,9 +45,9 @@ namespace TTC.Deployment.Tests
         }
 
         [TestFixtureTearDown]
-        public void TearDown()
+        public void TestFixtureTearDown()
         {
-            DeletePreviousTestStack();
+            // DeletePreviousTestStack();
         }
 
         private void DeletePreviousTestStack()
@@ -119,9 +119,13 @@ namespace TTC.Deployment.Tests
 
             _deployer.DeployRelease(goodRevision, StackName);
 
-            var publicUrl = _stack.Outputs.First(o => o.Key == "elasticIpUrl").Value;
+            var publicDnsName = _stack.Outputs.First(o => o.Key == "publicDnsName").Value;
+            var homePageUrl = string.Format("http://{0}/index.aspx", publicDnsName);
 
-            var webpageText = Retry.Do(() => Http.Get(publicUrl + "/index.aspx"), TimeSpan.FromSeconds(10));
+            Console.WriteLine(homePageUrl);
+
+            var webpageText = Retry.Do(() => { var html = Http.Get(homePageUrl); return html; }, TimeSpan.FromSeconds(10));
+
             Assert.That(webpageText, Is.EqualTo("Hello, world!"));
         }
     }
