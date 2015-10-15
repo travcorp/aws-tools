@@ -44,6 +44,7 @@
     <Compile Include="AwsConfiguration.cs" />
     <Compile Include="Bundle.cs" />
     <Compile Include="ApplicationSetRevision.cs" />
+    <Compile Include="DeploymentGroupSpecification.cs" />
     <Compile Include="DeploymentsFailedException.cs" />
     <Compile Include="NoInstancesException.cs" />
     <Compile Include="Stack.cs" />

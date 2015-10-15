@@ -14,7 +14,7 @@ namespace TTC.Deployment.Tests
         private AwsConfiguration _awsConfiguration;
         private Deployer _deployer;
         private Stack _stack;
-        const string StackName = "AwsToolsAutoScalingTestVPC";
+        const string StackName = "AwsToolsAutoScalingTestVPC2";
         static private bool _hasCreatedStack;
 
         [SetUp]

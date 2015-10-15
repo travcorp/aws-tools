@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutoScalingDeploymentTest.cs" />
+    <Compile Include="BundleTest.cs" />
     <Compile Include="DeploymentTest.cs" />
     <Compile Include="ProvisioningTest.cs" />
     <Compile Include="Http.cs" />
@@ -89,6 +90,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ExampleRevisions\HelloWorld-AutoScaling\WebLayer\appspec.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExampleRevisions\HelloWorld-AutoScaling\WebLayer\deployspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\ApiLayer\appspec.yml">

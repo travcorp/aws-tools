@@ -122,10 +122,7 @@ namespace TTC.Deployment.AmazonWebServices
             var deploymentIds = new List<string>();
             foreach (var bundle in release.Bundles)
             {
-                var deploymentGroupName = stackName + "_" + bundle.BundleName;
-                EnsureDeploymentGroupExistsForApplicationBundleAndEnvironment(bundle.ApplicationSetName, bundle.BundleName, deploymentGroupName);
-                var deploymentResponse = DeployBundleToEnvironment(bundle, deploymentGroupName);
-                deploymentIds.Add(deploymentResponse.DeploymentId);
+                deploymentIds.Add(bundle.DeployToStack(_codeDeployClient, _iamClient, stackName, _awsConfiguration.RoleName).DeploymentId);
             }
             WaitForBundlesToDeploy(deploymentIds);
         }
@@ -160,100 +157,6 @@ namespace TTC.Deployment.AmazonWebServices
             });
         }
 
-        void EnsureDeploymentGroupExistsForApplicationBundleAndEnvironment(string applicationSetName, string bundleName, string deploymentGroupName)
-        {
-            var getRoleResponse = _iamClient.GetRole(new GetRoleRequest
-            {
-                RoleName = _awsConfiguration.RoleName
-            });
-
-            try
-            {
-                if (String.IsNullOrWhiteSpace(_awsConfiguration.DeployToAutoScalingGroups) 
-                    || _awsConfiguration.DeployToAutoScalingGroups.Equals("false", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    _codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
-                    {
-                        ApplicationName = CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName),
-                        DeploymentGroupName = deploymentGroupName,
-                        ServiceRoleArn = getRoleResponse.Role.Arn,
-                        Ec2TagFilters = new List<EC2TagFilter>
-                        {
-                            new EC2TagFilter
-                            {
-                                Type = EC2TagFilterType.KEY_AND_VALUE,
-                                Key = "DeploymentRole",
-                                Value = deploymentGroupName
-                            }
-                        }
-                    });
-                }
-                else if (_awsConfiguration.DeployToAutoScalingGroups.Equals("true", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var group = _autoScalingClient.DescribeAutoScalingGroups().AutoScalingGroups.FirstOrDefault(asg => asg.Tags.Any(t => t.Key == "DeploymentRole" && t.Value == deploymentGroupName));
-
-                    if (group == null)
-                        throw new ApplicationException(String.Format("Auto scaling group with DeploymentRole {0} does not exist.", deploymentGroupName));
-
-                    _codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
-                    {
-                        ApplicationName = CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName),
-                        DeploymentGroupName = deploymentGroupName,
-                        ServiceRoleArn = getRoleResponse.Role.Arn,
-                        AutoScalingGroups = new List<string> { group.AutoScalingGroupName }
-                    });
-                }
-                else
-                    throw new ApplicationException("Invalid value of DeployToAutoScalingGroups parameter.");
-
-            }
-            catch (DeploymentGroupAlreadyExistsException)
-            {
-            }
-        }
-
-        CreateDeploymentResponse DeployBundleToEnvironment(Bundle bundle,string deploymentGroupName)
-        {
-            CreateDeploymentResponse deploymentResponse = _codeDeployClient.CreateDeployment(new CreateDeploymentRequest
-            {
-                ApplicationName = CodeDeployApplicationNameForApplicationSetAndBundle(bundle.ApplicationSetName, bundle.BundleName),
-                DeploymentGroupName = deploymentGroupName,
-                Revision = new RevisionLocation
-                {
-                    RevisionType = RevisionLocationType.S3,
-                    S3Location = new S3Location
-                    {
-                        Bucket = bundle.Bucket,
-                        Key = bundle.FileName,
-                        BundleType = BundleType.Zip,
-                        ETag = bundle.ETag
-                    }
-                }
-            });
-
-            var deploymentStatus = DeploymentStatus.Created;
-            DeploymentInfo deploymentInfo = null;
-            while (deploymentStatus == DeploymentStatus.Created || deploymentStatus == DeploymentStatus.InProgress)
-            {
-                deploymentInfo =  _codeDeployClient.GetDeployment(new GetDeploymentRequest
-                {
-                    DeploymentId = deploymentResponse.DeploymentId
-                }).DeploymentInfo;
-                deploymentStatus = deploymentInfo.Status;
-            }
-
-            if (deploymentStatus == DeploymentStatus.Failed)
-            {
-                var failedInstances = GetFailedInstancesFor(new[] { deploymentInfo });
-                if (failedInstances.Any())
-                {
-                    throw new DeploymentsFailedException(failedInstances);                    
-                }
-                throw new NoInstancesException();
-            }
-            return deploymentResponse;
-        }
-
         void WaitForBundlesToDeploy(List<string> deploymentIds)
         {
             var  deploymentsInfo = new List<DeploymentInfo>() ;
@@ -279,18 +182,18 @@ namespace TTC.Deployment.AmazonWebServices
                 var instancesResult = _codeDeployClient.ListDeploymentInstances(new ListDeploymentInstancesRequest
                 {
                     DeploymentId = deployment.DeploymentId,
-                    InstanceStatusFilter = new List<string> {"Failed"}
+                    InstanceStatusFilter = new List<string> { "Failed" }
                 });
 
                 var tmpDeployment = deployment;
-                var awsInstances =  instancesResult.InstancesList.Select(id =>
+                var awsInstances = instancesResult.InstancesList.Select(id =>
                         _codeDeployClient.GetDeploymentInstance(new GetDeploymentInstanceRequest
                         {
                             InstanceId = id,
                             DeploymentId = tmpDeployment.DeploymentId
                         }));
 
-                allFailedInstances.AddRange(awsInstances.Select(i => 
+                allFailedInstances.AddRange(awsInstances.Select(i =>
                     new FailedInstance(i.InstanceSummary.InstanceId, deployment.DeploymentId, i.InstanceSummary.LifecycleEvents.First(lce => lce.Status == LifecycleEventStatus.Failed).Diagnostics.LogTail))
                 );
             }
