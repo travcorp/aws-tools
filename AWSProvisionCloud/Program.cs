@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System;
+using Amazon;
 using CommandLine;
 using CommandLine.Text;
 using TTC.Deployment.AmazonWebServices;
@@ -16,10 +17,12 @@ namespace AWSCloudProvision
             {
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
                 Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort },
-                ParametersFile = options.ParametersFile,
+                ParametersPath = options.ParametersPath,
                 StackOutputFile = options.StackOutputFile,
+                StackOutputBucket = options.StackOutputBucket,
                 AssumeRoleName = options.AssumeRoleName
             });
+
             deployer.CreateStack(new StackTemplate
             {
                 StackName = options.StackName,
@@ -45,11 +48,14 @@ namespace AWSCloudProvision
         [Option('x', "proxyPort", Required = false, HelpText = "The proxy port")]
         public int ProxyPort { get; set; }
 
-        [Option('p', "parametersFile", Required = false, HelpText = "Path to the file which specifies stack template parameters")]
-        public string ParametersFile { get; set; }
+        [Option('p', "parametersPath", Required = false, HelpText = "Path (or URL) to the file with stack template parameters")]
+        public string ParametersPath { get; set; }
         
-        [Option('o', "stackOutputFile", Required = false, HelpText = "File path where stack output will be saved after stack creation")]
+        [Option('o', "stackOutputFile", Required = false, HelpText = "File name where stack output will be saved after stack creation")]
         public string StackOutputFile { get; set; }
+
+        [Option('b', "stackOutputBucket", Required = false, HelpText = "Name of the bucket where file with stack output will be saved after stack creation")]
+        public string StackOutputBucket { get; set; }
 
         [Option('y', "assumeRoleName", Required = false, HelpText = "ARN of the role that will be assumed in AWS API calls")]
         public string AssumeRoleName { get; set; }

@@ -11,8 +11,9 @@ namespace TTC.Deployment.AmazonWebServices
         public string RoleName { get; set; }
         public RegionEndpoint AwsEndpoint { get; set; }
         public AwsProxy Proxy { get; set; }       
-        public string ParametersFile { get; set; }
+        public string ParametersPath { get; set; }
         public string StackOutputFile { get; set; }
+        public string StackOutputBucket { get; set; }
         public string DeployToAutoScalingGroups { get; set; }
         public string AssumeRoleName { get; set; }
     }

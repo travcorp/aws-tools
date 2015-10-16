@@ -32,7 +32,7 @@ namespace TTC.Deployment.Tests
                 RoleName = "CodeDeployRole",
                 AwsEndpoint =  RegionEndpoint.USEast1,
                 Proxy = new AwsProxy(),
-                ParametersFile = "StackProperties.json",
+                ParametersPath = "StackProperties.json",
                 StackOutputFile = "StackOutput.json"
             };
             _cloudFormationClient = new AmazonCloudFormationClient(new AmazonCloudFormationConfig { RegionEndpoint = _awsConfiguration.AwsEndpoint });

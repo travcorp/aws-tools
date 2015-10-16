@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
+using Amazon.CloudSearchDomain;
 using Amazon.CodeDeploy;
 using Amazon.CodeDeploy.Model;
 using Amazon.IdentityManagement;
@@ -58,7 +60,7 @@ namespace TTC.Deployment.AmazonWebServices
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
-                    ProxyPort = awsConfiguration.Proxy.Port,
+                    ProxyPort = awsConfiguration.Proxy.Port
                 });
 
             _s3Client = new AmazonS3Client(
@@ -88,17 +90,37 @@ namespace TTC.Deployment.AmazonWebServices
 
         public Stack CreateStack(StackTemplate stackTemplate)
         {
-            var templatePath = Path.Combine(Environment.CurrentDirectory, stackTemplate.TemplatePath);
-
             var stackName = stackTemplate.StackName;
 
-            _cloudFormationClient.CreateStack(new CreateStackRequest {
-                StackName = stackName,
-                TemplateBody = File.ReadAllText(templatePath),
-                Capabilities = new List<string> { Capability.CAPABILITY_IAM },
-                DisableRollback = true,
-                Parameters = GetStackParameters()
-            });
+            var parameters = GetStackParameters();
+            foreach (var param in parameters)
+                Console.WriteLine(param.ParameterKey + " : " + param.ParameterValue);
+
+            if (IsTemplateOnS3(stackTemplate.TemplatePath))
+            {
+                _cloudFormationClient.CreateStack(new CreateStackRequest
+                {
+                    StackName = stackName,
+                    Capabilities = new List<string> { Capability.CAPABILITY_IAM },
+                    DisableRollback = true,
+                    Parameters = parameters,
+                    TemplateURL = stackTemplate.TemplatePath
+                });
+            }
+            else
+            {
+                var templatePath = Path.Combine(Environment.CurrentDirectory, stackTemplate.TemplatePath);
+                string templateBody = File.ReadAllText(templatePath);
+
+                _cloudFormationClient.CreateStack(new CreateStackRequest
+                {
+                    StackName = stackName,
+                    TemplateBody = templateBody,
+                    Capabilities = new List<string> { Capability.CAPABILITY_IAM },
+                    DisableRollback = true,
+                    Parameters = parameters
+                });
+            }
 
             WaitForStack(stackName);
             var stack = _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName}).Stacks.First();
@@ -112,23 +134,35 @@ namespace TTC.Deployment.AmazonWebServices
             };
         }
 
-        List<Parameter> GetStackParameters()
+        bool IsTemplateOnS3(string templatePath)
         {
-            if (String.IsNullOrWhiteSpace(_awsConfiguration.ParametersFile))
+            Uri uri;
+            if (!Uri.TryCreate(templatePath, UriKind.Absolute, out uri))
+                return false;
+
+            return true;
+        }
+
+        private List<Parameter> GetStackParameters()
+        {
+            if (String.IsNullOrWhiteSpace(_awsConfiguration.ParametersPath))
                 return null;
 
             List<Parameter> returnList = new List<Parameter>();
 
-            using (var file = File.OpenText(_awsConfiguration.ParametersFile))
+            var webClient = new WebClient();
+            using (var stream = new MemoryStream(webClient.DownloadData(_awsConfiguration.ParametersPath)))
+            using (var sr = new StreamReader(stream))
             {
-                var parametersInFile = JObject.Parse(file.ReadToEnd());
+                var parametersInFile = JObject.Parse(sr.ReadToEnd());
 
                 foreach (var paramInFile in parametersInFile)
                 {
-                    var parameter = new Parameter { ParameterKey = paramInFile.Key, ParameterValue = paramInFile.Value.ToString() };
+                    var parameter = new Parameter {ParameterKey = paramInFile.Key, ParameterValue = paramInFile.Value.ToString()};
                     returnList.Add(parameter);
                 }
             }
+
 
             return returnList;
         }
@@ -155,16 +189,41 @@ namespace TTC.Deployment.AmazonWebServices
             if (stack.Outputs == null || stack.Outputs.Count == 0)
                 return;
 
+            // Check is same file already exists in the bucket
+            var objectsInBucket = _s3Client.ListObjects(new ListObjectsRequest {BucketName = _awsConfiguration.StackOutputBucket}).S3Objects;
+            if (objectsInBucket.Any(objectInBucket => objectInBucket.Key == _awsConfiguration.StackOutputFile))
+                throw new ApplicationException(string.Format("S3 object with key {0} already exists in the bucket {1}", _awsConfiguration.StackOutputFile, _awsConfiguration.StackOutputBucket));
+
             var jsonOutput = new JObject();
             foreach (var output in stack.Outputs)
             {
-                jsonOutput.Add(output.OutputKey, JObject.Parse(output.OutputValue));
+                jsonOutput.Add(new JProperty(output.OutputKey, output.OutputValue));
             }
 
-            using (var file = File.CreateText(_awsConfiguration.StackOutputFile))
-            using (var writer = new JsonTextWriter(file))
+            var stream = new MemoryStream();
+
+            // Write json
+            using(var sw = new StreamWriter(stream))
+            using (var writer = new JsonTextWriter(sw))
             {
                 jsonOutput.WriteTo(writer);
+                sw.Flush();
+                stream.Position = 0;
+
+                // Put json to S3
+                PutObjectResponse s3response;
+                using (var sr = new StreamReader(stream))
+                {
+                    s3response = _s3Client.PutObject(new PutObjectRequest
+                    {
+                        BucketName = _awsConfiguration.StackOutputBucket,
+                        Key = _awsConfiguration.StackOutputFile,
+                        ContentBody = sr.ReadToEnd()
+                    });
+                }
+
+                if (s3response.HttpStatusCode != System.Net.HttpStatusCode.OK)
+                    throw new ApplicationException(string.Format("S3 put object was not successfull - HttpStatusCode={0}", s3response.HttpStatusCode));
             }
         }
 
