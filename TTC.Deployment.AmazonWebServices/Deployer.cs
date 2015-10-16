@@ -41,7 +41,7 @@ namespace TTC.Deployment.AmazonWebServices
             // Either assume role or use credentials from the key store
             AWSCredentials tempCredentials;
             if (!String.IsNullOrWhiteSpace(awsConfiguration.AssumeRoleName))
-                tempCredentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest {DurationSeconds = 3600, RoleArn = awsConfiguration.AssumeRoleName}).Credentials;
+                tempCredentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest {DurationSeconds = 3600, RoleArn = awsConfiguration.AssumeRoleName, RoleSessionName = "AssumingRoleForDeployment"}).Credentials;
             else
                 tempCredentials = new EnvironmentAWSCredentials();
 
