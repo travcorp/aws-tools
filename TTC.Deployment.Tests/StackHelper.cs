@@ -2,6 +2,8 @@ using System.Linq;
 using Amazon;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
+using Amazon.CodeDeploy;
+using Amazon.CodeDeploy.Model;
 
 namespace TTC.Deployment.Tests
 {
@@ -9,6 +11,12 @@ namespace TTC.Deployment.Tests
     {
         public static void DeleteStack(RegionEndpoint awsEndpoint, string stackName)
         {
+            var codeDeployClient = new AmazonCodeDeployClient(awsEndpoint);
+            var apps = codeDeployClient.ListApplications().Applications.Where(name => name.StartsWith("HelloWorld"));
+            foreach (var app in apps) {
+                codeDeployClient.DeleteApplication(new DeleteApplicationRequest {ApplicationName = app});
+            }
+
             var cloudFormationClient = new AmazonCloudFormationClient(awsEndpoint);
             try
             {

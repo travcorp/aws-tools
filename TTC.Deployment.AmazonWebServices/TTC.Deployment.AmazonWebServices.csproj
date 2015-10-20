@@ -39,6 +39,9 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="YamlDotNet">
+      <HintPath>..\packages\YamlDotNet.3.7.0\lib\net35\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AwsConfiguration.cs" />
@@ -46,6 +49,7 @@
     <Compile Include="ApplicationSetRevision.cs" />
     <Compile Include="DeploymentGroupSpecification.cs" />
     <Compile Include="DeploymentsFailedException.cs" />
+    <Compile Include="FailedInstance.cs" />
     <Compile Include="NoInstancesException.cs" />
     <Compile Include="Stack.cs" />
     <Compile Include="Deployer.cs" />

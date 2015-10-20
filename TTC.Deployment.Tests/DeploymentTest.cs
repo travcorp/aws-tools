@@ -100,10 +100,12 @@ namespace TTC.Deployment.Tests
             try
             {
                 _deployer.DeployRelease(badRevision, StackName);
-                Assert.Fail("Expected NoInstancesException");
+                Assert.Fail("Expected DeploymentsFailedException");
             }
-            catch (NoInstancesException)
+            catch (DeploymentsFailedException e)
             {
+                Assert.That(e.FailedInstances.Count(), Is.EqualTo(0));
+                Assert.That(e.Message, Contains.Substring("No instances were found"));
             }
         }
 

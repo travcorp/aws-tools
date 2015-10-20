@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading;
+using Amazon.AutoScaling;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
 using Amazon.CodeDeploy;
@@ -12,8 +11,6 @@ using Amazon.CodeDeploy.Model;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.S3;
-using Amazon.S3.Model;
-using Amazon.AutoScaling;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -110,9 +107,8 @@ namespace TTC.Deployment.AmazonWebServices
         public Release PushRevision(ApplicationSetRevision applicationSetRevision)
         {
             EnsureCodeDeployRoleExists();
-            var subdirectories = Directory.GetDirectories(applicationSetRevision.LocalDirectory);
+            var subdirectories = Directory.GetDirectories(applicationSetRevision.LocalDirectory).Select(sd => new DirectoryInfo(sd));
             var bundles = subdirectories.Select(subdirectory => PushBundleForSubdirectory(applicationSetRevision, subdirectory, _awsConfiguration.Bucket)).ToArray();
-
             return new Release(applicationSetRevision.ApplicationSetName, applicationSetRevision.Version, bundles);
         }
 
@@ -122,16 +118,16 @@ namespace TTC.Deployment.AmazonWebServices
             var deploymentIds = new List<string>();
             foreach (var bundle in release.Bundles)
             {
-                deploymentIds.Add(bundle.DeployToStack(_codeDeployClient, _iamClient, stackName, _awsConfiguration.RoleName).DeploymentId);
+                deploymentIds.Add(bundle.DeployToStack(_codeDeployClient, _iamClient, _autoScalingClient, stackName, _awsConfiguration.RoleName).DeploymentId);
             }
             WaitForBundlesToDeploy(deploymentIds);
         }
 
-        Bundle PushBundleForSubdirectory(ApplicationSetRevision applicationSetRevision, string subdirectory, string bucket)
+        Bundle PushBundleForSubdirectory(ApplicationSetRevision applicationSetRevision, DirectoryInfo subdirectory, string bucket)
         {
-            var dir = Path.GetFileNameWithoutExtension(subdirectory);
-            return new Bundle(applicationSetRevision.ApplicationSetName, dir, applicationSetRevision.Version, bucket,
-                PushDirectoryAsCodeDeployApplication(subdirectory, applicationSetRevision.ApplicationSetName, dir, applicationSetRevision.Version, bucket));
+            var bundle = new Bundle(applicationSetRevision.ApplicationSetName, subdirectory, applicationSetRevision.Version, bucket, null);
+            bundle.Push(_s3Client, _codeDeployClient);
+            return bundle;
         }
 
         void EnsureCodeDeployRoleExists()
@@ -167,10 +163,8 @@ namespace TTC.Deployment.AmazonWebServices
                 inProgress = deploymentsInfo.Count(i => i.Status == DeploymentStatus.InProgress || i.Status == DeploymentStatus.Created);
             }
             var failedDeployments = deploymentsInfo.Where(i => i.Status != DeploymentStatus.Succeeded).ToArray();
-            if (failedDeployments.Any())
-            {
-                var failedInstances = GetFailedInstancesFor(failedDeployments);
-                throw new DeploymentsFailedException(failedInstances);
+            if (failedDeployments.Any()) {
+                throw new DeploymentsFailedException(failedDeployments, GetFailedInstancesFor(failedDeployments));
             }
         }
 
@@ -193,67 +187,14 @@ namespace TTC.Deployment.AmazonWebServices
                             DeploymentId = tmpDeployment.DeploymentId
                         }));
 
-                allFailedInstances.AddRange(awsInstances.Select(i =>
-                    new FailedInstance(i.InstanceSummary.InstanceId, deployment.DeploymentId, i.InstanceSummary.LifecycleEvents.First(lce => lce.Status == LifecycleEventStatus.Failed).Diagnostics.LogTail))
-                );
+                allFailedInstances.AddRange(awsInstances.Select(i => {
+                    var firstFailEvent = i.InstanceSummary.LifecycleEvents.FirstOrDefault(lce => lce.Status == LifecycleEventStatus.Failed);
+                    var tail = firstFailEvent == null ? string.Empty : firstFailEvent.Diagnostics.LogTail;
+                    return new FailedInstance(i.InstanceSummary.InstanceId, deployment.DeploymentId, tail);
+                }));
             }
 
             return allFailedInstances.ToArray();
-        }
-
-        string PushDirectoryAsCodeDeployApplication(string directory, string applicationSetName, string bundleName, string versionString, string bucketName)
-        {
-            var zipFileName = string.Format("{0}.{1}.{2}.zip", applicationSetName, versionString, bundleName);
-            var tempPath = Path.Combine(Path.GetTempPath(), zipFileName + "." + Guid.NewGuid() + ".zip");
-
-            ZipFile.CreateFromDirectory(directory, tempPath, CompressionLevel.Optimal, false, Encoding.ASCII);
-
-            var allTheBuckets = _s3Client.ListBuckets(new ListBucketsRequest()).Buckets;
-
-            if(!allTheBuckets.Exists(b =>b.BucketName == bucketName))
-            {
-                _s3Client.PutBucket(new PutBucketRequest { BucketName = bucketName, UseClientRegion = true });
-            }
-
-            var putResponse = _s3Client.PutObject(new PutObjectRequest
-            {
-                BucketName = bucketName, Key = zipFileName, FilePath = tempPath
-            });
-
-            var codeDeployApplicationName = CodeDeployApplicationNameForApplicationSetAndBundle(applicationSetName, bundleName);
-
-            var registration = new RegisterApplicationRevisionRequest
-            {
-                ApplicationName = codeDeployApplicationName,
-                Description = "Revision " + versionString,
-                Revision = new RevisionLocation
-                {
-                    RevisionType = RevisionLocationType.S3,
-                    S3Location = new S3Location
-                    {
-                        Bucket = bucketName,
-                        BundleType = BundleType.Zip,
-                        Key = zipFileName,
-                        Version = versionString
-                    }
-                }
-            };
-            try
-            {
-                _codeDeployClient.RegisterApplicationRevision(registration);
-            }
-            catch (ApplicationDoesNotExistException)
-            {
-                _codeDeployClient.CreateApplication(new CreateApplicationRequest { ApplicationName = codeDeployApplicationName });
-                _codeDeployClient.RegisterApplicationRevision(registration);
-            }
-
-            return putResponse.ETag;
-        }
-
-        private static string CodeDeployApplicationNameForApplicationSetAndBundle(string applicationSetName, string bundleName)
-        {
-            return applicationSetName + "." + bundleName;
         }
     }
 }

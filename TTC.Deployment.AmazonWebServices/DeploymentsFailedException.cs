@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Amazon.CodeDeploy.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
-    public class DeploymentsFailedException : Exception
+    public class DeploymentsFailedException : ApplicationException
     {
-        private readonly IEnumerable<FailedInstance> _failedInstances;
+        private readonly DeploymentInfo[] _failedDeployments;
+        private readonly FailedInstance[] _failedInstances;
 
-        public DeploymentsFailedException(IEnumerable<FailedInstance> failedInstances)
+        public DeploymentsFailedException(DeploymentInfo[] failedDeployments, FailedInstance[] failedInstances)
         {
+            _failedDeployments = failedDeployments;
             _failedInstances = failedInstances;
         }
 
@@ -22,42 +25,19 @@ namespace TTC.Deployment.AmazonWebServices
         {
             get
             {
-                return "Deployment failed: " + string.Join(Environment.NewLine, FailedInstances.Select(i => i.ToString()));
+                return string.Format("The following deployments failed:\n\n{0}", string.Join("\n\n", _failedDeployments.Select(DescribeFailedDeployment)));
             }
         }
-    }
 
-    public class FailedInstance
-    {
-        private readonly string _instanceId;
-        private readonly string _deploymentId;
-        private readonly string _tail;
-
-        public FailedInstance(string instanceId, string deploymentId, string tail)
+        private string DescribeFailedDeployment(DeploymentInfo deploymentInfo)
         {
-            _instanceId = instanceId;
-            _deploymentId = deploymentId;
-            _tail = tail;
+            return string.Format("{0} ({1})\n{2}", deploymentInfo.DeploymentGroupName, deploymentInfo.DeploymentId, DescribeFailedInstances(deploymentInfo.DeploymentId));
         }
 
-        public string InstanceId
+        private string DescribeFailedInstances(string deploymentId)
         {
-            get { return _instanceId; }
-        }
-
-        public string DeploymentId
-        {
-            get { return _deploymentId; }
-        }
-
-        public string Tail
-        {
-            get { return _tail; }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("InstanceId: {0}, DeploymentId: {1}{2} Tail: {3}", InstanceId, DeploymentId, Environment.NewLine, Tail);
+            var failedInstances = _failedInstances.Where(fi => fi.DeploymentId == deploymentId).ToArray();
+            return failedInstances.Any() ? string.Join("\n\n", failedInstances.Select(f => f.ToString())) : "No instances found";
         }
     }
 }
