@@ -115,6 +115,15 @@
     <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\WebLayer\before-install.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\WebLayer\deployspec.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExampleRevisions\HelloWorld-Empty\Wtf\appspec.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExampleRevisions\HelloWorld-Empty\Wtf\deployspec.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
