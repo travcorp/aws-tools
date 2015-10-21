@@ -1,4 +1,6 @@
+using System;
 using System.Linq;
+using System.Threading;
 using Amazon;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
@@ -24,6 +26,7 @@ namespace TTC.Deployment.Tests
                 var testStackStatus = StackStatus.DELETE_IN_PROGRESS;
                 while (testStackStatus == StackStatus.DELETE_IN_PROGRESS)
                 {
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
                     var stacksStatus =
                         cloudFormationClient.DescribeStacks(new DescribeStacksRequest { StackName = stackName });
                     testStackStatus = stacksStatus.Stacks.First(s => s.StackName == stackName).StackStatus;
