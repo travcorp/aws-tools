@@ -159,6 +159,7 @@ namespace TTC.Deployment.AmazonWebServices
             var inProgress = deploymentIds.Count;
             while (inProgress > 0)
             {
+                Thread.Sleep(TimeSpan.FromSeconds(10));
                 deploymentsInfo = _codeDeployClient.BatchGetDeployments(new BatchGetDeploymentsRequest { DeploymentIds = deploymentIds }).DeploymentsInfo;
                 inProgress = deploymentsInfo.Count(i => i.Status == DeploymentStatus.InProgress || i.Status == DeploymentStatus.Created);
             }
