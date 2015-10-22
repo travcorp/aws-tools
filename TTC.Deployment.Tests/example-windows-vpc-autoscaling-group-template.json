@@ -110,8 +110,11 @@
     },
     "ElasticLoadBalancer": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-	  "DependsOn": ["vpc1"],
+	  "DependsOn": ["vpc1", "securityGroup1"],
       "Properties": {
+         "SecurityGroups": [{
+          "Ref": "securityGroup1"
+        }],
         "CrossZone": "true",
         "Listeners": [{
           "LoadBalancerPort": "80",
