@@ -115,11 +115,7 @@ namespace TTC.Deployment.AmazonWebServices
         public void DeployRelease(Release release, string stackName)
         {
             EnsureCodeDeployRoleExists();
-            var deploymentIds = new List<string>();
-            foreach (var bundle in release.Bundles)
-            {
-                deploymentIds.Add(bundle.DeployToStack(_codeDeployClient, _iamClient, _autoScalingClient, stackName, _awsConfiguration.RoleName).DeploymentId);
-            }
+            var deploymentIds = release.Bundles.Select(bundle => bundle.DeployToStack(_codeDeployClient, _iamClient, _autoScalingClient, stackName, _awsConfiguration.RoleName).DeploymentId).ToList();
             WaitForBundlesToDeploy(deploymentIds);
         }
 

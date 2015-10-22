@@ -47,7 +47,7 @@ namespace TTC.Deployment.Tests
         [TestFixtureTearDown]
         public void TearDown()
         {
-            DeletePreviousTestStack();
+            // DeletePreviousTestStack();
         }
 
         private void DeletePreviousTestStack()
