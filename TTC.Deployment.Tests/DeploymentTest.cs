@@ -105,7 +105,7 @@ namespace TTC.Deployment.Tests
             catch (DeploymentsFailedException e)
             {
                 Assert.That(e.FailedInstances.Count(), Is.EqualTo(0));
-                Assert.That(e.Message, Contains.Substring("No instances were found"));
+                Assert.That(e.Message, Contains.Substring("No instances found"));
             }
         }
 
