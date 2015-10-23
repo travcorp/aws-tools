@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "AWS.Deployment.Tests VPC (Please Delete Me)",
+  "Description": "AWS.Deployment.Tests AutoScaling VPC (Please Delete Me)",
   "Parameters": {},
   "Resources": {
     "instanceProfile1": {
@@ -74,8 +74,15 @@
     },
     "WebServerGroup": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
+	  "CreationPolicy": {
+		"ResourceSignal": {
+		  "Count": "1",
+		  "Timeout": "PT25M"
+		}
+	  },
       "Properties": {
 		"HealthCheckGracePeriod": "240",
+		"HealthCheckType" : "EC2",
 		"VPCZoneIdentifier": [{ "Ref": "publicSubnet1" }], 
         "LaunchConfigurationName": {
           "Ref": "webServerLaunchConfig"
@@ -103,8 +110,11 @@
     },
     "ElasticLoadBalancer": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-	  "DependsOn": ["vpc1"],
+	  "DependsOn": ["vpc1", "securityGroup1"],
       "Properties": {
+         "SecurityGroups": [{
+          "Ref": "securityGroup1"
+        }],
         "CrossZone": "true",
         "Listeners": [{
           "LoadBalancerPort": "80",
@@ -139,7 +149,11 @@
                 "powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
                 "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-west-2/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
                 "powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n",
-                "</script>\n"
+				"cfn-signal -e %ERRORLEVEL%",
+				" --stack=", { "Ref" : "AWS::StackName" },
+				" --resource=WebServerGroup",
+				" --region=", { "Ref" : "AWS::Region" },
+                "\n</script>\n"
               ]
             ]
           }
@@ -295,7 +309,7 @@
         "IpProtocol": "icmp",
         "FromPort": "-1",
         "ToPort": "-1",
-        "CidrIp": "10.0.1.0/24"
+        "CidrIp": "0.0.0.0/0"
       }
     },
     "egress1": {
@@ -319,6 +333,12 @@
         "ToPort": "80",
         "CidrIp": "0.0.0.0/0"
       }
+    }
+  },
+  "Outputs" : {
+    "publicDnsName" : {
+      "Value" : { "Fn::GetAtt" : [ "ElasticLoadBalancer" , "DNSName" ] },
+      "Description" : "The public DNS name"
     }
   }
 }

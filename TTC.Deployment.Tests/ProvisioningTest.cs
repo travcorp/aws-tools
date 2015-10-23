@@ -16,7 +16,7 @@ namespace TTC.Deployment.Tests
     {
         private AwsConfiguration _awsConfiguration;
         private AmazonCloudFormationClient _cloudFormationClient;
-        const string StackName = "AwsToolsTestVPC";
+        const string StackName = "AwsToolsProvisioningTestVPC";
 
         [SetUp]
         public void SetUp()

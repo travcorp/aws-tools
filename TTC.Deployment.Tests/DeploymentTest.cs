@@ -45,7 +45,7 @@ namespace TTC.Deployment.Tests
         }
 
         [TestFixtureTearDown]
-        public void TearDown()
+        public void TestFixtureTearDown()
         {
             DeletePreviousTestStack();
         }
@@ -100,10 +100,12 @@ namespace TTC.Deployment.Tests
             try
             {
                 _deployer.DeployRelease(badRevision, StackName);
-                Assert.Fail("Expected NoInstancesException");
+                Assert.Fail("Expected DeploymentsFailedException");
             }
-            catch (NoInstancesException)
+            catch (DeploymentsFailedException e)
             {
+                Assert.That(e.FailedInstances.Count(), Is.EqualTo(0));
+                Assert.That(e.Message, Contains.Substring("No instances found"));
             }
         }
 
@@ -119,9 +121,13 @@ namespace TTC.Deployment.Tests
 
             _deployer.DeployRelease(goodRevision, StackName);
 
-            var publicUrl = _stack.Outputs.First(o => o.Key == "elasticIpUrl").Value;
+            var publicDnsName = _stack.Outputs.First(o => o.Key == "publicDnsName").Value;
+            var homePageUrl = string.Format("http://{0}/index.aspx", publicDnsName);
 
-            var webpageText = Retry.Do(() => Http.Get(publicUrl + "/index.aspx"), TimeSpan.FromSeconds(10));
+            Console.WriteLine(homePageUrl);
+
+            var webpageText = Retry.Do(() => { var html = Http.Get(homePageUrl); return html; }, TimeSpan.FromSeconds(10));
+
             Assert.That(webpageText, Is.EqualTo("Hello, world!"));
         }
     }
