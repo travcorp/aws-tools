@@ -50,6 +50,7 @@
     <Compile Include="DeploymentGroupSpecification.cs" />
     <Compile Include="DeploymentsFailedException.cs" />
     <Compile Include="FailedInstance.cs" />
+    <Compile Include="MissingDeploymentManifestException.cs" />
     <Compile Include="NoInstancesException.cs" />
     <Compile Include="Stack.cs" />
     <Compile Include="Deployer.cs" />

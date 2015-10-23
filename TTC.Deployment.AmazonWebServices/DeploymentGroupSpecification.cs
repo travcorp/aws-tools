@@ -10,6 +10,10 @@ namespace TTC.Deployment.AmazonWebServices
 
         public static DeploymentGroupSpecification FromFile(string path)
         {
+            if (!File.Exists(path))
+            {
+                throw new MissingDeploymentManifestException(path);
+            }
             using (var stream = File.Open(path, FileMode.Open))
             {
                 using (var reader = new StreamReader(stream))

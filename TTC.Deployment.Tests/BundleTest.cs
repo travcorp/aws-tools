@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
 
@@ -22,5 +23,13 @@ namespace TTC.Deployment.Tests
             var bundle = new Bundle("HelloWorld-AutoScaling", dir, "SomeVersion", "SomeBucket", "SomeETag");
             Assert.That(bundle.TargetsAutoScalingDeploymentGroup);
         }
+
+        [Test]
+        public void MissingDeploymentManifestThrowsUsefulError()
+        {
+            var dir = new DirectoryInfo(@".\ExampleRevisions\HelloWorld-NoDeploySpec\WebLayer");
+            Assert.That(() => new Bundle("HelloWorld-NoDeploySpec", dir, "SomeVersion", "SomeBucket", "SomeETag"), Throws.InstanceOf<MissingDeploymentManifestException>());
+        }
     }
+
 }

@@ -70,6 +70,9 @@
     <Content Include="ExampleRevisions\HelloWorld-Empty\Wtf\wtf.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExampleRevisions\HelloWorld-NoDeploySpec\WebLayer\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="CodeDeployRole\code-deploy-trust.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -122,6 +125,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ExampleRevisions\HelloWorld-Empty\Wtf\deployspec.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExampleRevisions\HelloWorld-NoDeploySpec\WebLayer\appspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
