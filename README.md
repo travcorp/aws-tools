@@ -10,8 +10,9 @@ You probably want to use two commands: `AWSS3Push`, followed by `AWSProvisionClo
 
 You will want to use : `AWSProvisionCloud` followed by `AWSPushAndDeploy`
 
+### Credentials
 
-TODO: Something about AWS Credentials
+Refer to the (AWS SDK for .NET guide)[http://docs.aws.amazon.com/AWSSdkDocsNET/latest/V2/DeveloperGuide/net-dg-config-creds.html]
 
 ### Provision
 
@@ -104,6 +105,17 @@ Requires:
 
 `AWSPushAndDeploy  --version 1.1.2 --buildDirectoryPath .\TTC.Deployment.Tests\ExampleRevisions\HelloWorld --applicationSetName someTestBuild --IAMRolePolicyDocumentPath .\TTC.Deployment.Tests\CodeDeployRole\code-deploy-policy.json --assumeRoleTrustDocument .\TTC.Deployment.Tests\CodeDeployRole\code-deploy-policy.json --bucketName testReleases --stackName MyStack`
 
+
+## deployspec.yml
+
+A file called `deployspec.yml` must be present in each application directory. The CodeDeploy
+deployment group will be created if it doesn't exist yet. This file configures that
+deployment group and must have the following format:
+
+```
+deploymentGroup:
+  autoscaling: [boolean]
+```
 
 ## IAM role policy
 
