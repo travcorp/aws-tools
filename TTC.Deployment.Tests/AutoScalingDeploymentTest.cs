@@ -47,7 +47,7 @@ namespace TTC.Deployment.Tests
         [TestFixtureTearDown]
         public void TearDown()
         {
-            // DeletePreviousTestStack();
+            DeletePreviousTestStack();
         }
 
         private void DeletePreviousTestStack()
@@ -67,7 +67,7 @@ namespace TTC.Deployment.Tests
 
             _deployer.DeployRelease(goodRevision, StackName);
 
-            var publicDnsName = _stack.Outputs.First(o => o.Key == "publicDnsName").Value;
+            var publicDnsName = _stack.Outputs["publicDnsName"];
             var homePageUrl = string.Format("http://{0}/index.aspx", publicDnsName);
 
             Console.WriteLine(homePageUrl);
