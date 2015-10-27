@@ -1,0 +1,14 @@
+﻿{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "AWS.Deployment.Tests SimpleBucket (Please Delete Me)",
+  "Parameters": {
+  },
+  "Resources": {
+    "bucket1": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": "aws-tools-test-bucket-1"
+      }
+    }
+  }
+}

@@ -27,8 +27,8 @@ namespace TTC.Deployment.Tests
         {
             _awsConfiguration = new AwsConfiguration
             {
-                IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "./CodeDeployRole", "s3-policy-new-bucket.json"),
-                AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "./CodeDeployRole", "code-deploy-trust.json"),
+                IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "./Roles", "s3-policy-new-bucket.json"),
+                AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "./Roles", "code-deploy-trust.json"),
                 Bucket = "s3-push-test",
                 RoleName = "SomeNewRole",
                 AwsEndpoint = RegionEndpoint.USWest2,

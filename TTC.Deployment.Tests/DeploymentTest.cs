@@ -25,8 +25,8 @@ namespace TTC.Deployment.Tests
             ConfigurationManager.AppSettings["AWSProfileName"] = "default";
             _awsConfiguration = new AwsConfiguration
             {
-                AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "CodeDeployRole", "code-deploy-trust.json"),
-                IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "CodeDeployRole", "code-deploy-policy.json"),
+                AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "Roles", "code-deploy-trust.json"),
+                IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "Roles", "code-deploy-policy.json"),
                 Bucket = "aws-deployment-tools-tests",
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.USWest2,

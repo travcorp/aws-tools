@@ -1,5 +1,5 @@
 using Amazon;
-
+using Amazon.Runtime;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -11,6 +11,7 @@ namespace TTC.Deployment.AmazonWebServices
         public string RoleName { get; set; }
         public RegionEndpoint AwsEndpoint { get; set; }
         public AwsProxy Proxy { get; set; }
+        public AWSCredentials Credentials { get; set; }
     }
 
     public class AwsProxy 

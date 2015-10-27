@@ -25,10 +25,6 @@ namespace TTC.Deployment.Tests
            
             _awsConfiguration = new AwsConfiguration
             {
-                AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "CodeDeployRole", "code-deploy-trust.json"),
-                IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "CodeDeployRole", "code-deploy-policy.json"),
-                Bucket = "test-releases",
-                RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.USWest2,
                 Proxy = new AwsProxy()
             };
@@ -64,9 +60,12 @@ namespace TTC.Deployment.Tests
             Assert.AreEqual(status, StackStatus.CREATE_COMPLETE);
         }
 
+    
         private void DeletePreviousTestStack()
         {
             StackHelper.DeleteStack(_awsConfiguration.AwsEndpoint, StackName);
         }
+
+    
     }
 }
