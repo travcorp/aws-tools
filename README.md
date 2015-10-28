@@ -12,7 +12,7 @@ You will want to use : `AWSProvisionCloud` followed by `AWSPushAndDeploy`
 
 ### Credentials
 
-Refer to the (AWS SDK for .NET guide)[http://docs.aws.amazon.com/AWSSdkDocsNET/latest/V2/DeveloperGuide/net-dg-config-creds.html]
+Refer to the [AWS SDK for .NET guide](http://docs.aws.amazon.com/AWSSdkDocsNET/latest/V2/DeveloperGuide/net-dg-config-creds.html)
 
 ### Provision
 
