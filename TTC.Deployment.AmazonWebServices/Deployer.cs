@@ -11,6 +11,7 @@ using Amazon.CodeDeploy.Model;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.S3;
+using Amazon.Runtime;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -26,7 +27,9 @@ namespace TTC.Deployment.AmazonWebServices
         public Deployer(AwsConfiguration awsConfiguration) {
             _awsConfiguration = awsConfiguration;
 
+            AWSCredentials credentials = awsConfiguration.Credentials != null ? awsConfiguration.Credentials : new EnvironmentAWSCredentials();
             _codeDeployClient = new AmazonCodeDeployClient(
+               credentials,
                 new AmazonCodeDeployConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -34,6 +37,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _cloudFormationClient = new AmazonCloudFormationClient(
+                credentials,
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -41,6 +45,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _s3Client = new AmazonS3Client(
+                credentials,
                 new AmazonS3Config {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -48,6 +53,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _iamClient = new AmazonIdentityManagementServiceClient(
+                credentials,
                 new AmazonIdentityManagementServiceConfig  {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 
@@ -55,6 +61,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _autoScalingClient = new AmazonAutoScalingClient(
+                credentials,
                 new AmazonAutoScalingConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint,
                     ProxyHost = awsConfiguration.Proxy.Host,
