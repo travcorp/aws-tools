@@ -36,7 +36,7 @@ namespace TTC.Deployment.Tests
         public void SetUp()
         {
             ConfigurationManager.AppSettings["AWSProfileName"] = "default";
-            _userName = "test_user_16";
+            _userName = "test_user_21";
             _roleName = "assume-role-" + DateTime.Now.ToFileTime().ToString();
             _bucketName = "aws-tools-test-bucket-1";
 
@@ -99,7 +99,7 @@ namespace TTC.Deployment.Tests
         }
 
         [Test]
-        public void FailsToCreateVPCBasedOnBadRoleThatCannotAssumeOtherRoles()
+        public void FailsToCreateBucketBasedOnBadRoleThatCannotAssumeOtherRoles()
         {
             var clientId = Guid.NewGuid();
             const string sessionName = "NetUser";
@@ -125,7 +125,7 @@ namespace TTC.Deployment.Tests
         }
 
         [Test]
-        public void CreatesVPCBasedOnBadRoleThatCanAssumeAppropriateRole()
+        public void CreatesBucketBasedOnRoleThatCanAssumeAppropriateRole()
         {
             _iamClient.PutRolePolicy(new PutRolePolicyRequest
             {
@@ -198,7 +198,11 @@ namespace TTC.Deployment.Tests
                 AccessKeyId = _accessKeyId
             });
             _iamClient.DeleteUser(new DeleteUserRequest { UserName = _userName });
-            _s3Client.DeleteBucket(_bucketName);
+
+            try
+            {
+                _s3Client.DeleteBucket(_bucketName);
+            } catch { }
         }
 
         private void DeleteRole(string roleName)
