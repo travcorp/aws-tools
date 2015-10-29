@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Configuration;
-using System.IO;
 using System.Linq;
 using Amazon;
 using NUnit.Framework;
@@ -25,8 +24,8 @@ namespace TTC.Deployment.Tests
             ConfigurationManager.AppSettings["AWSProfileName"] = "default";
             _awsConfiguration = new AwsConfiguration
             {
-                AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "Roles", "code-deploy-trust.json"),
-                IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "Roles", "code-deploy-policy.json"),
+                AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
+                IamRolePolicyDocument = Roles.Path("code-deploy-policy.json"),
                 Bucket = "aws-deployment-tools-tests",
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.USWest2,
@@ -39,7 +38,7 @@ namespace TTC.Deployment.Tests
             _stack = _deployer.CreateStack(new StackTemplate
             {
                 StackName = StackName,
-                TemplatePath = @".\example-windows-vpc-template.json"
+                TemplatePath = CloudFormationTemplates.Path("example-windows-vpc-template.json")
             });
             _hasCreatedStack = true;
         }
@@ -62,7 +61,7 @@ namespace TTC.Deployment.Tests
             {
                 ApplicationSetName = "HelloWorld",
                 Version = "BadWebLayerAppSpec",
-                LocalDirectory = @".\ExampleRevisions\HelloWorld-BadWebLayerAppSpec"
+                LocalDirectory = ExampleRevisions.Directory("HelloWorld-BadWebLayerAppSpec")
             });    
 
             var expectedTail = string.Join("\n",
@@ -94,7 +93,7 @@ namespace TTC.Deployment.Tests
             {
                 ApplicationSetName = "HelloWorld",
                 Version = "Empty",
-                LocalDirectory = @".\ExampleRevisions\HelloWorld-Empty"
+                LocalDirectory = ExampleRevisions.Directory("HelloWorld-Empty")
             });
 
             try
@@ -116,7 +115,7 @@ namespace TTC.Deployment.Tests
             {
                 ApplicationSetName = "HelloWorld",
                 Version = "GoodRevision",
-                LocalDirectory = @".\ExampleRevisions\HelloWorld-1.2.3"
+                LocalDirectory = ExampleRevisions.Directory("HelloWorld-1.2.3")
             });
 
             _deployer.DeployRelease(goodRevision, StackName);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using Amazon;
 using Amazon.IdentityManagement;
@@ -27,8 +26,8 @@ namespace TTC.Deployment.Tests
         {
             _awsConfiguration = new AwsConfiguration
             {
-                IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "./Roles", "s3-policy-new-bucket.json"),
-                AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "./Roles", "code-deploy-trust.json"),
+                IamRolePolicyDocument = Roles.Path("s3-policy-new-bucket.json"),
+                AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
                 Bucket = "s3-push-test",
                 RoleName = "SomeNewRole",
                 AwsEndpoint = RegionEndpoint.USWest2,
@@ -37,7 +36,7 @@ namespace TTC.Deployment.Tests
             _s3Client = new AmazonS3Client(_awsConfiguration.AwsEndpoint);
             _iamClient = new AmazonIdentityManagementServiceClient(_awsConfiguration.AwsEndpoint);
             _deployer = new Deployer(_awsConfiguration);
-            _localBuildDirectory = Path.Combine(Environment.CurrentDirectory, "ExampleRevisions", "HelloWorld-1.2.3");
+            _localBuildDirectory = ExampleRevisions.Directory("HelloWorld-1.2.3");
             _applicationSetName = "HelloWorld";
             _version = "1.1.1";
         }

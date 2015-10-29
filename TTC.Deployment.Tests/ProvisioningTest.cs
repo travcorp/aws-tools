@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Configuration;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using Amazon;
@@ -46,7 +45,7 @@ namespace TTC.Deployment.Tests
             deployer.CreateStack(new StackTemplate
             {
                 StackName = StackName,
-                TemplatePath = @".\example-windows-vpc-template.json"
+                TemplatePath = CloudFormationTemplates.Path("example-windows-vpc-template.json")
             });
 
             var status = StackStatus.CREATE_IN_PROGRESS;
