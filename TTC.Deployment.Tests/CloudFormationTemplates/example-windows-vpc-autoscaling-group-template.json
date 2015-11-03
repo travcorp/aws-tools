@@ -77,7 +77,7 @@
 	  "CreationPolicy": {
 		"ResourceSignal": {
 		  "Count": "1",
-		  "Timeout": "PT25M"
+		  "Timeout": "PT30M"
 		}
 	  },
       "Properties": {
