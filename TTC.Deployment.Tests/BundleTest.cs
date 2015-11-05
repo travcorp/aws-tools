@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
 
 namespace TTC.Deployment.Tests
@@ -11,7 +9,7 @@ namespace TTC.Deployment.Tests
         [Test]
         public void DeploymentManifestAllowsInstances()
         {
-            var dir = new DirectoryInfo(@".\ExampleRevisions\HelloWorld-1.2.3\WebLayer");
+            var dir = ExampleRevisions.BundleDirectory("HelloWorld-1.2.3", "WebLayer");
             var bundle = new Bundle("HelloWorld-1.2.3", dir, "SomeVersion", "SomeBucket", "SomeETag");
             Assert.That(bundle.TargetsAutoScalingDeploymentGroup, Is.False);
         }
@@ -19,7 +17,7 @@ namespace TTC.Deployment.Tests
         [Test]
         public void DeploymentManifestAllowsAutoScalingGroups()
         {
-            var dir = new DirectoryInfo(@".\ExampleRevisions\HelloWorld-Autoscaling\WebLayer");
+            var dir = ExampleRevisions.BundleDirectory("HelloWorld-AutoScaling", "WebLayer");
             var bundle = new Bundle("HelloWorld-AutoScaling", dir, "SomeVersion", "SomeBucket", "SomeETag");
             Assert.That(bundle.TargetsAutoScalingDeploymentGroup);
         }
@@ -27,7 +25,7 @@ namespace TTC.Deployment.Tests
         [Test]
         public void MissingDeploymentManifestThrowsUsefulError()
         {
-            var dir = new DirectoryInfo(@".\ExampleRevisions\HelloWorld-NoDeploySpec\WebLayer");
+            var dir = ExampleRevisions.BundleDirectory("HelloWorld-NoDeploySpec", "WebLayer");
             Assert.That(() => new Bundle("HelloWorld-NoDeploySpec", dir, "SomeVersion", "SomeBucket", "SomeETag"), Throws.InstanceOf<MissingDeploymentManifestException>());
         }
     }

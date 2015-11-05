@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Configuration;
-using System.IO;
 using Amazon;
 using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
@@ -25,8 +23,8 @@ namespace TTC.Deployment.Tests
             ConfigurationManager.AppSettings["AWSProfileName"] = "default";
             _awsConfiguration = new AwsConfiguration
             {
-                AssumeRoleTrustDocument = Path.Combine(Environment.CurrentDirectory, "Roles", "code-deploy-trust.json"),
-                IamRolePolicyDocument = Path.Combine(Environment.CurrentDirectory, "Roles", "code-deploy-policy.json"),
+                AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
+                IamRolePolicyDocument = Roles.Path("code-deploy-policy.json"),
                 Bucket = "aws-deployment-tools-tests",
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.USWest2,
@@ -39,7 +37,7 @@ namespace TTC.Deployment.Tests
             _stack = _deployer.CreateStack(new StackTemplate
             {
                 StackName = StackName,
-                TemplatePath = @".\example-windows-vpc-autoscaling-group-template.json"
+                TemplatePath = CloudFormationTemplates.Path("example-windows-vpc-autoscaling-group-template.json")
             });
             _hasCreatedStack = true;
         }

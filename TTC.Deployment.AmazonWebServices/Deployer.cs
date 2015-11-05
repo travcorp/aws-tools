@@ -27,7 +27,7 @@ namespace TTC.Deployment.AmazonWebServices
         public Deployer(AwsConfiguration awsConfiguration) {
             _awsConfiguration = awsConfiguration;
 
-            AWSCredentials credentials = awsConfiguration.Credentials != null ? awsConfiguration.Credentials : new EnvironmentAWSCredentials();
+            AWSCredentials credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
             _codeDeployClient = new AmazonCodeDeployClient(
                credentials,
                 new AmazonCodeDeployConfig {

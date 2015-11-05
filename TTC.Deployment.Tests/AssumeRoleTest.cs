@@ -9,7 +9,6 @@ using Amazon.SecurityToken.Model;
 using NUnit.Framework;
 using System;
 using System.Configuration;
-using System.IO;
 using System.Net;
 using System.Threading;
 using TTC.Deployment.AmazonWebServices;
@@ -19,7 +18,6 @@ namespace TTC.Deployment.Tests
     [TestFixture]
     public class AssumeRoleTest
     {
-        AmazonCloudFormationClient _cloudFormationClient;
         AwsConfiguration _awsConfiguration;
         AmazonIdentityManagementServiceClient _iamClient;
         AmazonSecurityTokenServiceClient _securityTokenServiceClient;
@@ -45,7 +43,6 @@ namespace TTC.Deployment.Tests
                 AwsEndpoint = RegionEndpoint.USWest2,
                 Proxy = new AwsProxy()
             };
-            _cloudFormationClient = new AmazonCloudFormationClient(new AmazonCloudFormationConfig { RegionEndpoint = _awsConfiguration.AwsEndpoint });
             DeletePreviousTestStack();
 
             _iamClient = new AmazonIdentityManagementServiceClient(
@@ -119,7 +116,7 @@ namespace TTC.Deployment.Tests
             Assert.Throws<AmazonCloudFormationException>(() => deployer.CreateStack(new StackTemplate
             {
                 StackName = "SimpleBucketTestStack",
-                TemplatePath = @".\simple-s3-bucket-template.json",
+                TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json"),
                 AssumedRoleARN = _role.Arn
             }));
         }
@@ -165,7 +162,7 @@ namespace TTC.Deployment.Tests
              deployer.CreateStack(new StackTemplate {
        
                 StackName = "SimpleBucketTestStack",
-                TemplatePath = @".\simple-s3-bucket-template.json",
+                TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json"),
                 AssumedRoleARN = _role.Arn
             });
 
@@ -240,35 +237,6 @@ namespace TTC.Deployment.Tests
         private void DeletePreviousTestStack()
         {
             StackHelper.DeleteStack(_awsConfiguration.AwsEndpoint, "SimpleBucketTestStack");
-        }
-
-        private void PutRolePolicy(string pathToRoleDocument, string roleName)
-        {
-            var response = _iamClient.PutRolePolicy(new PutRolePolicyRequest
-            {
-                RoleName = roleName,
-                PolicyName = "create-s3-bucket-test",
-                PolicyDocument = File.ReadAllText(pathToRoleDocument)
-            });
-        }
-
-        private string CreateRole(string pathToRoleDocument, string roleName)
-        {
-            _iamClient = new AmazonIdentityManagementServiceClient(
-                new AmazonIdentityManagementServiceConfig
-                {
-                    RegionEndpoint = _awsConfiguration.AwsEndpoint,
-                    ProxyHost = _awsConfiguration.Proxy.Host,
-                    ProxyPort = _awsConfiguration.Proxy.Port
-                });
-
-            var response = _iamClient.CreateRole(new CreateRoleRequest
-            {
-                RoleName = roleName,
-                AssumeRolePolicyDocument = File.ReadAllText(pathToRoleDocument)
-            });
-
-            return response.Role.Arn;
         }
 
         private string GetAWSAccountIdFromArn(User user)
