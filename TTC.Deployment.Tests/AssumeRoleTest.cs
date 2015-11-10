@@ -37,7 +37,7 @@ namespace TTC.Deployment.Tests
 
             _awsConfiguration = new AwsConfiguration
             {
-                AwsEndpoint = RegionEndpoint.USWest2,
+                AwsEndpoint = TestConfiguration.AwsEndpoint,
                 Credentials = new TestSuiteCredentials()
             };
             

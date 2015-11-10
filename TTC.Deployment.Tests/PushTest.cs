@@ -30,9 +30,8 @@ namespace TTC.Deployment.Tests
                 AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
                 Bucket = "s3-push-test",
                 RoleName = "SomeNewRole",
-                AwsEndpoint = RegionEndpoint.USWest2,
-                Proxy = new AwsProxy(),
-                Credentials = new TestSuiteCredentials()
+                Credentials = new TestSuiteCredentials(),
+                AwsEndpoint = TestConfiguration.AwsEndpoint
             };
             _s3Client = new AmazonS3Client(_awsConfiguration.AwsEndpoint);
             _iamClient = new AmazonIdentityManagementServiceClient(_awsConfiguration.AwsEndpoint);

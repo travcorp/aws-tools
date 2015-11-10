@@ -66,6 +66,8 @@
     <Compile Include="StackHelper.cs" />
     <Compile Include="EnsureRunningAsSpecialAwsToolsTestUser.cs" />
     <Compile Include="TestSuiteCredentials.cs" />
+    <Compile Include="StackOutputsTest.cs" />
+    <Compile Include="TestConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
@@ -79,6 +81,9 @@
     <Content Include="ExampleRevisions\HelloWorld-NoDeploySpec\WebLayer\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="CloudFormationTemplates\stack-outputs.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Roles\code-deploy-policy.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
