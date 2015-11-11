@@ -1,8 +1,8 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package >
   <metadata>
     <id>AWSPushAndDeploy</id>
-    <version>1.0.10</version>
+    <version>1.0.11.0</version>
     <title>AWSPushAndDeploy</title>
     <authors>TravCorp</authors>
     <owners>TravCorp</owners>
@@ -23,3 +23,5 @@
     <file src="bin\Release\*.config" target="lib\net45" />
   </files>
 </package>
+
+
