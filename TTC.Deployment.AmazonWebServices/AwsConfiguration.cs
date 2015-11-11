@@ -16,6 +16,7 @@ namespace TTC.Deployment.AmazonWebServices
         public string StackOutputBucket { get; set; }
         public string DeployToAutoScalingGroups { get; set; }
         public string AssumeRoleName { get; set; }
+        public string DeleteStackName { get; set; }
     }
 
     public class AwsProxy 

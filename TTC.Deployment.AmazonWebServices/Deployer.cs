@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Amazon;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
 using Amazon.CloudSearchDomain;
@@ -132,6 +133,18 @@ namespace TTC.Deployment.AmazonWebServices
                 StackName = stackName,
                 Outputs = stack.Outputs.ToDictionary(x => x.OutputKey, x => x.OutputValue)
             };
+        }
+
+        public void DeleteStack(string stackName)
+        {
+            _cloudFormationClient.DeleteStack(new DeleteStackRequest {StackName = stackName});
+            var testStackStatus = StackStatus.DELETE_IN_PROGRESS;
+
+            while (testStackStatus == StackStatus.DELETE_IN_PROGRESS)
+            {
+                var stacksStatus = _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName});
+                testStackStatus = stacksStatus.Stacks.First(s => s.StackName == stackName).StackStatus;
+            }
         }
 
         bool IsTemplateOnS3(string templatePath)

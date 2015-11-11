@@ -20,14 +20,22 @@ namespace AWSCloudProvision
                 ParametersPath = options.ParametersPath,
                 StackOutputFile = options.StackOutputFile,
                 StackOutputBucket = options.StackOutputBucket,
-                AssumeRoleName = options.AssumeRoleName
+                AssumeRoleName = options.AssumeRoleName,
+                DeleteStackName = options.DeleteStackName
             });
 
-            deployer.CreateStack(new StackTemplate
+            if (String.IsNullOrWhiteSpace(options.DeleteStackName))
             {
-                StackName = options.StackName,
-                TemplatePath = options.TemplatePath
-            });
+                deployer.CreateStack(new StackTemplate
+                {
+                    StackName = options.StackName,
+                    TemplatePath = options.TemplatePath
+                });
+            }
+            else
+            {
+                deployer.DeleteStack(options.DeleteStackName);
+            }
         }
     }
 
@@ -59,6 +67,9 @@ namespace AWSCloudProvision
 
         [Option('y', "assumeRoleName", Required = false, HelpText = "ARN of the role that will be assumed in AWS API calls")]
         public string AssumeRoleName { get; set; }
+
+        [Option('d', "deleteStackName", Required = false, HelpText = "Name of the stack to delete")]
+        public string DeleteStackName { get; set; }
 
         [HelpOption]
         public string GetUsage()
