@@ -145,19 +145,7 @@ namespace TTC.Deployment.Tests
                 }"
             });
 
-            var clientId = Guid.NewGuid();
-            const string sessionName = "Net2User";
-            _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(_userCredentials, _awsConfiguration.AwsEndpoint);
-            Thread.Sleep(TimeSpan.FromSeconds(60));
-            var goodCredentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest
-            {
-                RoleArn = _role.Arn,
-                RoleSessionName = sessionName,
-                DurationSeconds = 3600,
-                ExternalId = clientId.ToString()
-            }).Credentials;
-
-            _awsConfiguration.Credentials = goodCredentials;
+            _awsConfiguration.RoleName = _role.Arn;
             var deployer = new Deployer(_awsConfiguration);
              deployer.CreateStack(new StackTemplate {
        

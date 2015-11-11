@@ -12,6 +12,8 @@ using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.S3;
 using Amazon.Runtime;
+using Amazon.SecurityToken;
+using Amazon.SecurityToken.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -23,11 +25,27 @@ namespace TTC.Deployment.AmazonWebServices
         private readonly AmazonIdentityManagementServiceClient _iamClient;
         private readonly AwsConfiguration _awsConfiguration;
         private readonly AmazonAutoScalingClient _autoScalingClient;
+        private readonly AmazonSecurityTokenServiceClient _securityTokenServiceClient;
 
         public Deployer(AwsConfiguration awsConfiguration) {
             _awsConfiguration = awsConfiguration;
 
             AWSCredentials credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
+            if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))
+            {
+                var clientId = Guid.NewGuid();
+                const string sessionName = "Net2User";
+                _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(_awsConfiguration.AwsEndpoint);
+ 
+                _awsConfiguration.Credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest
+                {
+                    RoleArn = awsConfiguration.RoleName,
+                    RoleSessionName = sessionName,
+                    DurationSeconds = 3600,
+                    ExternalId = clientId.ToString()
+                }).Credentials;
+            }
+
             _codeDeployClient = new AmazonCodeDeployClient(
                credentials,
                 new AmazonCodeDeployConfig {

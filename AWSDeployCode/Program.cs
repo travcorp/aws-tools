@@ -18,7 +18,7 @@ namespace AWSPushAndDeploy
                 AssumeRoleTrustDocument = options.AssumeRolePolicyPath,
                 IamRolePolicyDocument = options.S3AccessPolicyDocumentPath,
                 Bucket = options.BucketName,
-                RoleName = "CodeDeployRole",
+                RoleName = options.RoleName,
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.RegionEndpoint), 
                 Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort }
             });
@@ -72,6 +72,9 @@ namespace AWSPushAndDeploy
 
         [Option('e', "regionEndpoint", Required = false, HelpText = "Amazon region endpoint", DefaultValue = "us-east-1")]
         public string RegionEndpoint { get; set; }
+
+        [Option('n', "roleName", Required = false, HelpText = "Assume role name", DefaultValue = "CodeDeployRole")]
+        public string RoleName { get; set; }
 
         [HelpOption]
         public string GetUsage()
