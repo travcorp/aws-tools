@@ -24,8 +24,9 @@ namespace AWSCloudProvision
                 DeleteStackName = options.DeleteStackName
             });
 
-            if (String.IsNullOrWhiteSpace(options.DeleteStackName))
+            if (options.DeleteStackName == "''")
             {
+                Console.WriteLine("Creating new stack " + options.StackName);
                 deployer.CreateStack(new StackTemplate
                 {
                     StackName = options.StackName,
@@ -34,6 +35,7 @@ namespace AWSCloudProvision
             }
             else
             {
+                Console.WriteLine("Deleting stack " + options.StackName);
                 deployer.DeleteStack(options.DeleteStackName);
             }
         }
