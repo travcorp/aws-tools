@@ -44,7 +44,7 @@ namespace AWSCloudProvision
         [Option('s', "stackName", Required = true, HelpText = "Name of the stack to provision / deploy to")]
         public string StackName { get; set; }
 
-        [Option('t', "templatePath", Required = true, HelpText = "Path to cloud formation template")]
+        [Option('t', "templatePath", Required = false, HelpText = "Path to cloud formation template")]
         public string TemplatePath { get; set; }
 
         [Option('r', "Region", HelpText = "AWS Region (e.g. us-east-1)", DefaultValue = "us-east-1")]

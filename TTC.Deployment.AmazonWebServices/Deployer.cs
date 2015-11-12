@@ -137,13 +137,19 @@ namespace TTC.Deployment.AmazonWebServices
 
         public void DeleteStack(string stackName)
         {
-            _cloudFormationClient.DeleteStack(new DeleteStackRequest {StackName = stackName});
-            var testStackStatus = StackStatus.DELETE_IN_PROGRESS;
-
-            while (testStackStatus == StackStatus.DELETE_IN_PROGRESS)
+            try
             {
-                var stacksStatus = _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName});
-                testStackStatus = stacksStatus.Stacks.First(s => s.StackName == stackName).StackStatus;
+                _cloudFormationClient.DeleteStack(new DeleteStackRequest {StackName = stackName});
+                var testStackStatus = StackStatus.DELETE_IN_PROGRESS;
+
+                while (testStackStatus == StackStatus.DELETE_IN_PROGRESS)
+                {
+                    var stacksStatus = _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName});
+                    testStackStatus = stacksStatus.Stacks.First(s => s.StackName == stackName).StackStatus;
+                }
+            }
+            catch (AmazonCloudFormationException)
+            {
             }
         }
 
