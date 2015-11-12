@@ -35,7 +35,7 @@ namespace TTC.Deployment.Tests
         {
             ConfigurationManager.AppSettings["AWSProfileName"] = "default";
             _userName = "test_user_21";
-            _roleName = "assume-role-" + DateTime.Now.ToFileTime().ToString();
+            _roleName = "assume-role-" + DateTime.Now.ToFileTime();
             _bucketName = "aws-tools-test-bucket-1";
 
             _awsConfiguration = new AwsConfiguration

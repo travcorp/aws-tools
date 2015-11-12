@@ -13,7 +13,6 @@ using Amazon.IdentityManagement.Model;
 using Amazon.S3;
 using Amazon.Runtime;
 using Amazon.SecurityToken;
-using Amazon.SecurityToken.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -29,25 +28,25 @@ namespace TTC.Deployment.AmazonWebServices
 
         public Deployer(AwsConfiguration awsConfiguration) {
             _awsConfiguration = awsConfiguration;
+            _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(_awsConfiguration.AwsEndpoint);
 
-            AWSCredentials credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
+            var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
+            
             if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))
             {
                 var clientId = Guid.NewGuid();
                 const string sessionName = "Net2User";
-                _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(_awsConfiguration.AwsEndpoint);
- 
-                _awsConfiguration.Credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest
-                {
-                    RoleArn = awsConfiguration.RoleName,
-                    RoleSessionName = sessionName,
-                    DurationSeconds = 3600,
-                    ExternalId = clientId.ToString()
-                }).Credentials;
+                
+//                credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest {
+//                    RoleArn = awsConfiguration.RoleName,
+//                    RoleSessionName = sessionName,
+//                    DurationSeconds = 3600,
+//                    ExternalId = clientId.ToString()
+//                }).Credentials;
             }
 
             _codeDeployClient = new AmazonCodeDeployClient(
-               credentials,
+                credentials,
                 new AmazonCodeDeployConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.Proxy.Host, 

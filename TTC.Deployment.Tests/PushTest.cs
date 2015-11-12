@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Configuration;
+using System.IO;
 using System.Linq;
 using Amazon;
 using Amazon.IdentityManagement;
@@ -39,13 +40,18 @@ namespace TTC.Deployment.Tests
             _localBuildDirectory = ExampleRevisions.Directory("HelloWorld-1.2.3");
             _applicationSetName = "HelloWorld";
             _version = "1.1.1";
+            DeleteRolesAndPolicies();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            DeleteRolesAndPolicies();
         }
 
         [Test]
         public void PushesToS3WithNewRole()
         {
-            DeleteRolesAndPolicies();
-
             _deployer.PushRevision(new ApplicationSetRevision
             {
                 ApplicationSetName = _applicationSetName,

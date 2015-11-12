@@ -13,7 +13,7 @@ namespace TTC.Deployment.Tests
         private Deployer _deployer;
         private Stack _stack;
         const string StackName = "AwsToolsAutoScalingTestVPC2";
-        static private bool _hasCreatedStack;
+        private static bool _hasCreatedStack;
 
         [SetUp]
         public void EnsureStackExists()
