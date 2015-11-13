@@ -146,6 +146,9 @@ namespace TTC.Deployment.AmazonWebServices
                 {
                     var stacksStatus = _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName});
                     testStackStatus = stacksStatus.Stacks.First(s => s.StackName == stackName).StackStatus;
+
+                    if (testStackStatus == StackStatus.DELETE_FAILED)
+                        throw new ApplicationException("Deleting of the stack failed!");
                 }
             }
             catch (AmazonCloudFormationException)
