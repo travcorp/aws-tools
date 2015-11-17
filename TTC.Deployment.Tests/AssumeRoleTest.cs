@@ -47,8 +47,8 @@ namespace TTC.Deployment.Tests
                 new AmazonIdentityManagementServiceConfig
                 {
                     RegionEndpoint = _awsConfiguration.AwsEndpoint,
-                    ProxyHost = _awsConfiguration.Proxy.Host,
-                    ProxyPort = _awsConfiguration.Proxy.Port
+                    ProxyHost = _awsConfiguration.ProxyHost,
+                    ProxyPort = _awsConfiguration.ProxyPort
                 });
 
             _user = _iamClient.CreateUser(new CreateUserRequest
