@@ -64,6 +64,7 @@
     <Compile Include="Retry.cs" />
     <Compile Include="Roles.cs" />
     <Compile Include="StackHelper.cs" />
+    <Compile Include="SuiteSetUp.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />

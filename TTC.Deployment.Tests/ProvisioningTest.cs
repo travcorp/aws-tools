@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using Amazon;
@@ -20,8 +19,6 @@ namespace TTC.Deployment.Tests
         [SetUp]
         public void SetUp()
         {
-            ConfigurationManager.AppSettings["AWSProfileName"] = "default";
-           
             _awsConfiguration = new AwsConfiguration
             {
                 AwsEndpoint = RegionEndpoint.USWest2,
