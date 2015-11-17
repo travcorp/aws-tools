@@ -8,7 +8,6 @@ using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
 using NUnit.Framework;
 using System;
-using System.Configuration;
 using System.Net;
 using System.Threading;
 using TTC.Deployment.AmazonWebServices;
@@ -40,7 +39,7 @@ namespace TTC.Deployment.Tests
             _awsConfiguration = new AwsConfiguration
             {
                 AwsEndpoint = RegionEndpoint.USWest2,
-                Proxy = new AwsProxy()
+                Credentials = new TestSuiteCredentials()
             };
             DeletePreviousTestStack();
 

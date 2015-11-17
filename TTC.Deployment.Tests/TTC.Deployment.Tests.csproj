@@ -65,6 +65,7 @@
     <Compile Include="Roles.cs" />
     <Compile Include="StackHelper.cs" />
     <Compile Include="EnsureRunningAsSpecialAwsToolsTestUser.cs" />
+    <Compile Include="TestSuiteCredentials.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />

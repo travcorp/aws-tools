@@ -22,7 +22,7 @@ namespace TTC.Deployment.Tests
             _awsConfiguration = new AwsConfiguration
             {
                 AwsEndpoint = RegionEndpoint.USWest2,
-                Proxy = new AwsProxy()
+                Credentials = new TestSuiteCredentials()
             };
             _cloudFormationClient = new AmazonCloudFormationClient(new AmazonCloudFormationConfig { RegionEndpoint = _awsConfiguration.AwsEndpoint });
             DeletePreviousTestStack();
