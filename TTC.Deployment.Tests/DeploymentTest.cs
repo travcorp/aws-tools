@@ -21,7 +21,6 @@ namespace TTC.Deployment.Tests
         {
             if (_hasCreatedStack) return;
 
-            ConfigurationManager.AppSettings["AWSProfileName"] = "default";
             _awsConfiguration = new AwsConfiguration
             {
                 AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),

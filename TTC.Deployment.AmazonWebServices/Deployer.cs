@@ -30,6 +30,7 @@ namespace TTC.Deployment.AmazonWebServices
             _awsConfiguration = awsConfiguration;
             _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(_awsConfiguration.AwsEndpoint);
 
+            // TODO: don't use EnvironmentAWSCredentials, because it doesn't support environment variables!
             var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
             
             if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))

@@ -1,4 +1,5 @@
-﻿using Amazon.IdentityManagement;
+﻿using System.Configuration;
+using Amazon.IdentityManagement;
 using NUnit.Framework;
 
 namespace TTC.Deployment.Tests
@@ -7,8 +8,9 @@ namespace TTC.Deployment.Tests
     public class EnsureRunningAsSpecialAwsToolsTestUser
     {
         [SetUp]
-        public void	CheckWeAreRunningAsTheSpecialUser()
+        public void CheckWeAreRunningAsTheSpecialUser()
 	    {
+            ConfigurationManager.AppSettings["AWSProfileName"] = "aws-tools-tests";
             var iamClient = new AmazonIdentityManagementServiceClient();
             var me = iamClient.GetUser();
             Assert.That(me.User.UserName, Is.EqualTo("aws-tools-tests"));
