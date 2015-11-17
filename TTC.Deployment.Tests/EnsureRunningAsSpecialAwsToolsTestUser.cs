@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace TTC.Deployment.Tests
 {
     [SetUpFixture]
-    public class SuiteSetUp
+    public class EnsureRunningAsSpecialAwsToolsTestUser
     {
         [SetUp]
         public void	CheckWeAreRunningAsTheSpecialUser()
