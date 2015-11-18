@@ -215,6 +215,15 @@ The tag key is "DeploymentRole" and its value should be #{stack_name}_#{applicat
 
 Where ApiLayer is the name of the deployment group for a bundle
 
+## Running the tests
+
+  1. Create an IAM user called `aws-tools-tests`
+  2. Save a local AWS profile called `aws-tools-tests` with the aws access key
+     and secret corresponding to that IAM user (or alternatively use environment 
+     variables)
+  3. Give the user the permissions to do anything with EC2, IAM, CodeDeploy, and
+     CloudFormation.
+  4. Run the tests.
 
 ## License
 

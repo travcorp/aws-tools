@@ -30,6 +30,7 @@ namespace TTC.Deployment.AmazonWebServices
             _awsConfiguration = awsConfiguration;
             _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(_awsConfiguration.AwsEndpoint);
 
+            // TODO: don't use EnvironmentAWSCredentials, because it doesn't support environment variables!
             var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
             
             if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))
@@ -49,40 +50,40 @@ namespace TTC.Deployment.AmazonWebServices
                 credentials,
                 new AmazonCodeDeployConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
-                    ProxyHost = awsConfiguration.Proxy.Host, 
-                    ProxyPort = awsConfiguration.Proxy.Port
+                    ProxyHost = awsConfiguration.ProxyHost, 
+                    ProxyPort = awsConfiguration.ProxyPort
                 });
 
             _cloudFormationClient = new AmazonCloudFormationClient(
                 credentials,
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
-                    ProxyHost = awsConfiguration.Proxy.Host, 
-                    ProxyPort = awsConfiguration.Proxy.Port
+                    ProxyHost = awsConfiguration.ProxyHost, 
+                    ProxyPort = awsConfiguration.ProxyPort
                 });
 
             _s3Client = new AmazonS3Client(
                 credentials,
                 new AmazonS3Config {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
-                    ProxyHost = awsConfiguration.Proxy.Host, 
-                    ProxyPort = awsConfiguration.Proxy.Port
+                    ProxyHost = awsConfiguration.ProxyHost, 
+                    ProxyPort = awsConfiguration.ProxyPort
                 });
 
             _iamClient = new AmazonIdentityManagementServiceClient(
                 credentials,
                 new AmazonIdentityManagementServiceConfig  {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
-                    ProxyHost = awsConfiguration.Proxy.Host, 
-                    ProxyPort = awsConfiguration.Proxy.Port
+                    ProxyHost = awsConfiguration.ProxyHost, 
+                    ProxyPort = awsConfiguration.ProxyPort
                 });
 
             _autoScalingClient = new AmazonAutoScalingClient(
                 credentials,
                 new AmazonAutoScalingConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint,
-                    ProxyHost = awsConfiguration.Proxy.Host,
-                    ProxyPort = awsConfiguration.Proxy.Port
+                    ProxyHost = awsConfiguration.ProxyHost,
+                    ProxyPort = awsConfiguration.ProxyPort
                 });
         }
 

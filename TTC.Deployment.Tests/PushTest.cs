@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using Amazon;
 using Amazon.IdentityManagement;
@@ -32,7 +31,8 @@ namespace TTC.Deployment.Tests
                 Bucket = "s3-push-test",
                 RoleName = "SomeNewRole",
                 AwsEndpoint = RegionEndpoint.USWest2,
-                Proxy = new AwsProxy()
+                Proxy = new AwsProxy(),
+                Credentials = new TestSuiteCredentials()
             };
             _s3Client = new AmazonS3Client(_awsConfiguration.AwsEndpoint);
             _iamClient = new AmazonIdentityManagementServiceClient(_awsConfiguration.AwsEndpoint);

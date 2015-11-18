@@ -14,14 +14,13 @@ namespace TTC.Deployment.Tests
         private Deployer _deployer;
         private Stack _stack;
         const string StackName = "AwsToolsTestVPC";
-        static private bool _hasCreatedStack;
+        private static bool _hasCreatedStack;
 
         [SetUp]
         public void EnsureStackExists()
         {
             if (_hasCreatedStack) return;
 
-            ConfigurationManager.AppSettings["AWSProfileName"] = "default";
             _awsConfiguration = new AwsConfiguration
             {
                 AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
@@ -29,7 +28,7 @@ namespace TTC.Deployment.Tests
                 Bucket = "aws-deployment-tools-tests",
                 RoleName = "CodeDeployRole",
                 AwsEndpoint = RegionEndpoint.USWest2,
-                Proxy = new AwsProxy()
+                Credentials = new TestSuiteCredentials()
             };
 
             _deployer = new Deployer(_awsConfiguration);

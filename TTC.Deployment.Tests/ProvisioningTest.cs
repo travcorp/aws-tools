@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using Amazon;
@@ -20,12 +19,10 @@ namespace TTC.Deployment.Tests
         [SetUp]
         public void SetUp()
         {
-            ConfigurationManager.AppSettings["AWSProfileName"] = "default";
-           
             _awsConfiguration = new AwsConfiguration
             {
                 AwsEndpoint = RegionEndpoint.USWest2,
-                Proxy = new AwsProxy()
+                Credentials = new TestSuiteCredentials()
             };
             _cloudFormationClient = new AmazonCloudFormationClient(new AmazonCloudFormationConfig { RegionEndpoint = _awsConfiguration.AwsEndpoint });
             DeletePreviousTestStack();

@@ -12,6 +12,8 @@ namespace TTC.Deployment.AmazonWebServices
         public RegionEndpoint AwsEndpoint { get; set; }
         public AwsProxy Proxy { get; set; }
         public AWSCredentials Credentials { get; set; }
+        public string ProxyHost { get { return Proxy == null ? null : Proxy.Host; } }
+        public int ProxyPort { get { return Proxy == null ? -1 : Proxy.Port; } }
     }
 
     public class AwsProxy 
