@@ -4,11 +4,11 @@ Collection of command line tools for creating AWS clouds, pushing applications t
 
 ## Non CodeDeploy Users
 
-You probably want to use two commands: `AWSS3Push`, followed by `AWSProvisionCloud` (In that order)
+You probably want to use two commands: `AWSS3Push`, followed by `AWSCreateStack` (In that order)
 
 ## CodeDeploy Users
 
-You will want to use : `AWSProvisionCloud` followed by `AWSPushAndDeploy`
+You will want to use : `AWSCreateStack` followed by `AWSPushAndDeploy`
 
 ### Credentials
 
@@ -28,7 +28,7 @@ Optional:
  - __proxyHost__                *Host of proxy server if you need to use one*
  - __proxyPort__                *Port of proxy server if you need to use one*
 
-`AWSProvisionCloud --stackName MyStack --templatePath c:\some_app\example-windows-vpc-template.json`
+`AWSCreateStack --stackName MyStack --templatePath c:\some_app\example-windows-vpc-template.json`
 
 
 ### Push
@@ -119,7 +119,7 @@ deploymentGroup:
 
 ## IAM role policy
 
-An IAM role policy document is required for AWSS3Push and AWSDeployCode.  If you using AWSS3Push and AWSDeployCode you will need to grant access to the appropriate S3 bucket (matching the bucket name you pass into the command), and ec2 instances and tags.  An example IAM policy document for both S3Push and Code deploy follows
+An IAM role policy document is required for AWSS3Push and AWSPushAndDeploy. If you are using AWSS3Push or AWSPushAndDeploy you will need to grant access to the appropriate S3 bucket (matching the bucket name you pass into the command), and ec2 instances and tags.  An example IAM policy document for both S3Push and Code deploy follows
 
 ```
 {
@@ -165,7 +165,7 @@ An IAM role policy document is required for AWSS3Push and AWSDeployCode.  If you
 The path to this file should be passed to the `--IAMRolePolicyDocumentPath` arguments
 
 ### IAM role trust
-An IAM role trust document is required for AWSS3Push and AWSDeployCode. The path to this file should be passed to the `--assumeRoleTrustDocument` arguments. An example file follows
+An IAM role trust document is required for AWSS3Push and AWSPushAndDeploy. The path to this file should be passed to the `--assumeRoleTrustDocument` arguments. An example file follows
 
 ```
 {
