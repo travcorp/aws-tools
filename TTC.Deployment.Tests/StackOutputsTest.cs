@@ -17,7 +17,11 @@ namespace TTC.Deployment.Tests
         [Test]
         public void CreatingStackCapturesOutputs()
         {
-            var deployer = new Deployer(new AwsConfiguration { AwsEndpoint = TestConfiguration.AwsEndpoint });
+            var deployer = new Deployer(new AwsConfiguration
+            {
+                AwsEndpoint = TestConfiguration.AwsEndpoint,
+                Credentials = new TestSuiteCredentials()
+            });
             var stack = deployer.CreateStack(new StackTemplate
             {
                 StackName = _stackName,
