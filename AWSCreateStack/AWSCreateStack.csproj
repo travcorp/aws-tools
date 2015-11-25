@@ -7,8 +7,8 @@
     <ProjectGuid>{71541178-51BA-4A22-B405-A0B084D0BF23}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AWSCloudProvision</RootNamespace>
-    <AssemblyName>AWSProvisionCloud</AssemblyName>
+    <RootNamespace>AWSCreateStack</RootNamespace>
+    <AssemblyName>AWSCreateStack</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\TTC.Deployment\</SolutionDir>

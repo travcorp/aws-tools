@@ -3,7 +3,7 @@ using CommandLine;
 using CommandLine.Text;
 using TTC.Deployment.AmazonWebServices;
 
-namespace AWSCloudProvision
+namespace AWSCreateStack
 {
     class Program
     {
