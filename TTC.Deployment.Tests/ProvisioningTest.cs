@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Amazon;
 using Amazon.CloudFormation;
 using Amazon.CloudFormation.Model;
 using NUnit.Framework;
@@ -21,10 +20,14 @@ namespace TTC.Deployment.Tests
         {
             _awsConfiguration = new AwsConfiguration
             {
-                AwsEndpoint = RegionEndpoint.USWest2,
+                AwsEndpoint = TestConfiguration.AwsEndpoint,
                 Credentials = new TestSuiteCredentials()
             };
-            _cloudFormationClient = new AmazonCloudFormationClient(new AmazonCloudFormationConfig { RegionEndpoint = _awsConfiguration.AwsEndpoint });
+            _cloudFormationClient = new AmazonCloudFormationClient(
+                new AmazonCloudFormationConfig {
+                    RegionEndpoint = _awsConfiguration.AwsEndpoint
+                }
+            );
             DeletePreviousTestStack();
         }
 
@@ -61,7 +64,5 @@ namespace TTC.Deployment.Tests
         {
             StackHelper.DeleteStack(_awsConfiguration.AwsEndpoint, StackName);
         }
-
-    
     }
 }

@@ -35,8 +35,8 @@ namespace TTC.Deployment.AmazonWebServices
             
             if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))
             {
-                var clientId = Guid.NewGuid();
-                const string sessionName = "Net2User";
+//                var clientId = Guid.NewGuid();
+//                const string sessionName = "Net2User";
                 
 //                credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest {
 //                    RoleArn = awsConfiguration.RoleName,
@@ -104,14 +104,10 @@ namespace TTC.Deployment.AmazonWebServices
             var stack =
                 _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName}).Stacks.First();
 
-            return new Stack
-            {
-                StackName = stackName,
-                Outputs = stack.Outputs.ToDictionary(x => x.OutputKey, x => x.OutputValue)
-            };
+            return new Stack(stackName, stack.Outputs.ToDictionary(x => x.OutputKey, x => x.OutputValue));
         }
 
-        void WaitForStack(string stackName)
+        private void WaitForStack(string stackName)
         {
             var status = StackStatus.CREATE_IN_PROGRESS;
             string statusReason = null;
@@ -144,14 +140,14 @@ namespace TTC.Deployment.AmazonWebServices
             WaitForBundlesToDeploy(deploymentIds);
         }
 
-        Bundle PushBundleForSubdirectory(ApplicationSetRevision applicationSetRevision, DirectoryInfo subdirectory, string bucket)
+        private Bundle PushBundleForSubdirectory(ApplicationSetRevision applicationSetRevision, DirectoryInfo subdirectory, string bucket)
         {
             var bundle = new Bundle(applicationSetRevision.ApplicationSetName, subdirectory, applicationSetRevision.Version, bucket, null);
             bundle.Push(_s3Client, _codeDeployClient);
             return bundle;
         }
 
-        void EnsureCodeDeployRoleExists()
+        private void EnsureCodeDeployRoleExists()
         {
             try
             {
@@ -174,7 +170,7 @@ namespace TTC.Deployment.AmazonWebServices
             });
         }
 
-        void WaitForBundlesToDeploy(List<string> deploymentIds)
+        private void WaitForBundlesToDeploy(List<string> deploymentIds)
         {
             var  deploymentsInfo = new List<DeploymentInfo>() ;
             var inProgress = deploymentIds.Count;

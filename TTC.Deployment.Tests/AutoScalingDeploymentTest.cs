@@ -26,7 +26,7 @@ namespace TTC.Deployment.Tests
                 IamRolePolicyDocument = Roles.Path("code-deploy-policy.json"),
                 Bucket = "aws-deployment-tools-tests",
                 RoleName = "CodeDeployRole",
-                AwsEndpoint = RegionEndpoint.USWest2,
+                AwsEndpoint = TestConfiguration.AwsEndpoint,
                 Credentials = new TestSuiteCredentials()
             };
 
