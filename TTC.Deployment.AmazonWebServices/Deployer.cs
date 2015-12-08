@@ -13,6 +13,7 @@ using Amazon.IdentityManagement.Model;
 using Amazon.S3;
 using Amazon.Runtime;
 using Amazon.SecurityToken;
+using Amazon.SecurityToken.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -35,15 +36,16 @@ namespace TTC.Deployment.AmazonWebServices
             
             if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))
             {
-//                var clientId = Guid.NewGuid();
-//                const string sessionName = "Net2User";
-                
-//                credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest {
-//                    RoleArn = awsConfiguration.RoleName,
-//                    RoleSessionName = sessionName,
-//                    DurationSeconds = 3600,
-//                    ExternalId = clientId.ToString()
-//                }).Credentials;
+                var clientId = Guid.NewGuid();
+                const string sessionName = "Net2User";
+
+                credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest
+                {
+                    RoleArn = awsConfiguration.RoleName,
+                    RoleSessionName = sessionName,
+                    DurationSeconds = 3600,
+                    ExternalId = clientId.ToString()
+                }).Credentials;
             }
 
             _codeDeployClient = new AmazonCodeDeployClient(
