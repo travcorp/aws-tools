@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Linq;
-using Amazon;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.S3;

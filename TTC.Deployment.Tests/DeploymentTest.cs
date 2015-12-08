@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
-using Amazon;
 using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
 

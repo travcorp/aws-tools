@@ -55,6 +55,7 @@
     <Compile Include="AutoScalingDeploymentTest.cs" />
     <Compile Include="BundleTest.cs" />
     <Compile Include="CloudFormationTemplates.cs" />
+    <Compile Include="DeleteStackTest.cs" />
     <Compile Include="DeploymentTest.cs" />
     <Compile Include="ExampleRevisions.cs" />
     <Compile Include="ProvisioningTest.cs" />
@@ -102,7 +103,7 @@
     <None Include="CloudFormationTemplates\example-windows-vpc-autoscaling-group-template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CloudFormationTemplates\simple-s3-bucket-template.json">
+    <None Include="CloudFormationTemplates\security-group-template.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="CloudFormationTemplates\example-windows-vpc-template.json">

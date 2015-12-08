@@ -214,5 +214,37 @@ namespace TTC.Deployment.AmazonWebServices
 
             return allFailedInstances.ToArray();
         }
+
+        public void DeleteStack(string stackName)
+        {
+            _cloudFormationClient.DeleteStack(new DeleteStackRequest
+            {
+                StackName = stackName
+            });
+            WaitForStackToBecomeDeleted(stackName);
+        }
+
+        private void WaitForStackToBecomeDeleted(string stackName)
+        {
+            var status = StackStatus.DELETE_IN_PROGRESS;
+            while (status == StackStatus.DELETE_IN_PROGRESS)
+            {
+                try
+                {
+                    status =
+                        _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName})
+                            .Stacks.First()
+                            .StackStatus;
+                }
+                catch (AmazonCloudFormationException)
+                {
+                    return;
+                }
+            }
+            if (status != StackStatus.DELETE_COMPLETE)
+            {
+                throw new FailedToDeleteStackException(stackName);
+            }
+        }
     }
 }

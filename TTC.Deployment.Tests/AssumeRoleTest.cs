@@ -1,5 +1,4 @@
-﻿using Amazon;
-using Amazon.CloudFormation;
+﻿using Amazon.CloudFormation;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.Runtime;
@@ -28,7 +27,7 @@ namespace TTC.Deployment.Tests
         string _roleName;
 
         private readonly string _userName = "aws_tools_assume_role_test_user";
-        private readonly string _bucketName = "aws-tools-test-bucket-1";
+        private readonly string _bucketName = "aws-tools-test-bucket-" + Guid.NewGuid().ToString().ToLowerInvariant();
 
         [SetUp]
         public void SetUp()
@@ -93,7 +92,13 @@ namespace TTC.Deployment.Tests
         [TearDown]
         public void TearDown()
         {
+            DeleteTheBucket();
             DeletePreviousTestStack();
+        }
+
+        private void DeleteTheBucket()
+        {
+            IgnoringNoSuchBucket(() => _s3Client.DeleteBucket(_bucketName));
         }
 
         [Test]
@@ -112,13 +117,13 @@ namespace TTC.Deployment.Tests
             }).Credentials;
 
             _awsConfiguration.Credentials = impotentCredentials;
+            _awsConfiguration.RoleName = _role.Arn;
 
             var deployer = new Deployer(_awsConfiguration);
             Assert.Throws<AmazonCloudFormationException>(() => deployer.CreateStack(new StackTemplate
             {
                 StackName = "SimpleBucketTestStack",
-                TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json"),
-                AssumedRoleARN = _role.Arn
+                TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json")
             }));
         }
 
@@ -149,10 +154,8 @@ namespace TTC.Deployment.Tests
             _awsConfiguration.RoleName = _role.Arn;
             var deployer = new Deployer(_awsConfiguration);
             deployer.CreateStack(new StackTemplate {
-       
                 StackName = "SimpleBucketTestStack",
-                TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json"),
-                AssumedRoleARN = _role.Arn
+                TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json")
             });
 
             var s3Response = _s3Client.GetBucketLocation(_bucketName);
@@ -186,7 +189,6 @@ namespace TTC.Deployment.Tests
             DeleteRole("some_role_that_is_no_good_test");
             DeleteUser(_userName);
             StackHelper.DeleteStack(_awsConfiguration.AwsEndpoint, "SimpleBucketTestStack");
-            IgnoringNoSuchBucket(() => _s3Client.DeleteBucket(_bucketName));
         }
 
         private void DeleteUser(string userName)
