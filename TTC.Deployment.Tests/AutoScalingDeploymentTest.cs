@@ -1,14 +1,18 @@
 ﻿using System;
-using System.Configuration;
-using Amazon;
 using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
+using Amazon.IdentityManagement;
+using Amazon.IdentityManagement.Model;
 
 namespace TTC.Deployment.Tests
 {
     [TestFixture]
     public class AutoScalingDeploymentTest
     {
+        private AmazonIdentityManagementServiceClient _iamClient;
+        private User _user;
+        private RoleHelper _roleHelper;
+        private Role _role;
         private AwsConfiguration _awsConfiguration;
         private Deployer _deployer;
         private Stack _stack;
@@ -19,16 +23,28 @@ namespace TTC.Deployment.Tests
         public void EnsureStackExists()
         {
             if (_hasCreatedStack) return;
-
             _awsConfiguration = new AwsConfiguration
             {
-                AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
-                IamRolePolicyDocument = Roles.Path("code-deploy-policy.json"),
-                Bucket = "aws-deployment-tools-tests",
-                RoleName = "CodeDeployRole",
                 AwsEndpoint = TestConfiguration.AwsEndpoint,
                 Credentials = new TestSuiteCredentials()
             };
+
+            _iamClient = new AmazonIdentityManagementServiceClient(
+                new AmazonIdentityManagementServiceConfig
+                {
+                    RegionEndpoint = _awsConfiguration.AwsEndpoint,
+                    ProxyHost = _awsConfiguration.ProxyHost,
+                    ProxyPort = _awsConfiguration.ProxyPort
+                });
+
+            _user = _iamClient.CreateUser(new CreateUserRequest
+            {
+                UserName = "TestDeployerUser"
+            }).User;
+
+
+            _roleHelper = new RoleHelper(_iamClient);
+            _role = _roleHelper.CreateRoleForUserToAssume(_user);
 
             _deployer = new Deployer(_awsConfiguration);
 
@@ -44,6 +60,8 @@ namespace TTC.Deployment.Tests
         [TestFixtureTearDown]
         public void TearDown()
         {
+            _roleHelper.DeleteRole(_role.Arn);
+            _roleHelper.DeleteUser("TestDeployerUser");
             DeletePreviousTestStack();
         }
 

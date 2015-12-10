@@ -1,15 +1,21 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
-using Amazon;
 using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
+using Amazon.IdentityManagement;
+using Amazon.IdentityManagement.Model;
+using System.Threading;
 
 namespace TTC.Deployment.Tests
 {
     [TestFixture]
     public class DeploymentTest
     {
+        private AmazonIdentityManagementServiceClient _iamClient;
+        private User _user;
+        private Role _role;
+        private RoleHelper _roleHelper;
+
         private AwsConfiguration _awsConfiguration;
         private Deployer _deployer;
         private Stack _stack;
@@ -20,17 +26,29 @@ namespace TTC.Deployment.Tests
         public void EnsureStackExists()
         {
             if (_hasCreatedStack) return;
-
             _awsConfiguration = new AwsConfiguration
             {
-                AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
-                IamRolePolicyDocument = Roles.Path("code-deploy-policy.json"),
-                Bucket = "aws-deployment-tools-tests",
-                RoleName = "CodeDeployRole",
                 AwsEndpoint = TestConfiguration.AwsEndpoint,
                 Credentials = new TestSuiteCredentials()
             };
 
+            _iamClient = new AmazonIdentityManagementServiceClient(
+                new AmazonIdentityManagementServiceConfig
+                {
+                    RegionEndpoint = _awsConfiguration.AwsEndpoint,
+                    ProxyHost = _awsConfiguration.ProxyHost,
+                    ProxyPort = _awsConfiguration.ProxyPort
+                });
+
+            _user = _iamClient.CreateUser(new CreateUserRequest
+            {
+                UserName = "TestDeployerUser201"
+            }).User;
+
+            _roleHelper = new RoleHelper(_iamClient);
+            _role = _roleHelper.CreateRoleForUserToAssume(_user);
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+            _awsConfiguration.RoleName = _role.Arn;
             _deployer = new Deployer(_awsConfiguration);
 
             DeletePreviousTestStack();
@@ -45,6 +63,8 @@ namespace TTC.Deployment.Tests
         [TestFixtureTearDown]
         public void TestFixtureTearDown()
         {
+            _roleHelper.DeleteRole(_role.Arn);
+            _roleHelper.DeleteUser("TestDeployerUser201");
             DeletePreviousTestStack();
         }
 
