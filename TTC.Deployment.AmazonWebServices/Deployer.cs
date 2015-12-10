@@ -13,6 +13,7 @@ using Amazon.IdentityManagement.Model;
 using Amazon.S3;
 using Amazon.Runtime;
 using Amazon.SecurityToken;
+using Amazon.SecurityToken.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -33,17 +34,18 @@ namespace TTC.Deployment.AmazonWebServices
             // TODO: don't use EnvironmentAWSCredentials, because it doesn't support environment variables!
             var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
             
-            if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))
+            if (!string.IsNullOrEmpty(_awsConfiguration.RoleArn))
             {
-//                var clientId = Guid.NewGuid();
-//                const string sessionName = "Net2User";
-                
-//                credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest {
-//                    RoleArn = awsConfiguration.RoleName,
-//                    RoleSessionName = sessionName,
-//                    DurationSeconds = 3600,
-//                    ExternalId = clientId.ToString()
-//                }).Credentials;
+                var clientId = Guid.NewGuid();
+                const string sessionName = "Net2User";
+
+                credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest
+                {
+                    RoleArn = awsConfiguration.RoleArn,
+                    RoleSessionName = sessionName,
+                    DurationSeconds = 3600,
+                    ExternalId = clientId.ToString()
+                }).Credentials;
             }
 
             _codeDeployClient = new AmazonCodeDeployClient(
@@ -97,7 +99,7 @@ namespace TTC.Deployment.AmazonWebServices
                 StackName = stackName,
                 TemplateBody = File.ReadAllText(templatePath),
                 Capabilities = new List<string> { Capability.CAPABILITY_IAM },
-                DisableRollback = true
+                DisableRollback = false
             });
 
             WaitForStack(stackName);
@@ -151,6 +153,8 @@ namespace TTC.Deployment.AmazonWebServices
         {
             try
             {
+                if (_awsConfiguration.AssumeRoleTrustDocument == null) return;
+
                 _iamClient.CreateRole(new CreateRoleRequest
                 {
                     RoleName = _awsConfiguration.RoleName,
@@ -164,7 +168,7 @@ namespace TTC.Deployment.AmazonWebServices
 
             _iamClient.PutRolePolicy(new PutRolePolicyRequest
             {
-                RoleName = _awsConfiguration.RoleName,
+                RoleName = _awsConfiguration.RoleArn,
                 PolicyName = "s3-releases",
                 PolicyDocument = File.ReadAllText(_awsConfiguration.IamRolePolicyDocument)
             });

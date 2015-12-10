@@ -1,36 +1,77 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
-using Amazon;
 using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
+using Amazon.IdentityManagement;
+using Amazon.IdentityManagement.Model;
+using System.Threading;
 
 namespace TTC.Deployment.Tests
 {
     [TestFixture]
     public class DeploymentTest
     {
+        private AmazonIdentityManagementServiceClient _iamClient;
+        private User _user;
+        private Role _role;
+        private RoleHelper _roleHelper;
+
         private AwsConfiguration _awsConfiguration;
         private Deployer _deployer;
         private Stack _stack;
         const string StackName = "AwsToolsTestVPC";
         private static bool _hasCreatedStack;
+        private string _username = "TestDeployerUserZ";
 
         [SetUp]
         public void EnsureStackExists()
         {
             if (_hasCreatedStack) return;
-
             _awsConfiguration = new AwsConfiguration
             {
-                AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
-                IamRolePolicyDocument = Roles.Path("code-deploy-policy.json"),
-                Bucket = "aws-deployment-tools-tests",
-                RoleName = "CodeDeployRole",
                 AwsEndpoint = TestConfiguration.AwsEndpoint,
-                Credentials = new TestSuiteCredentials()
+                Credentials = new TestSuiteCredentials(),
+                Bucket = "aws-deployment-tools-tests"
             };
 
+            _iamClient = new AmazonIdentityManagementServiceClient(
+                new AmazonIdentityManagementServiceConfig
+                {
+                    RegionEndpoint = _awsConfiguration.AwsEndpoint,
+                    ProxyHost = _awsConfiguration.ProxyHost,
+                    ProxyPort = _awsConfiguration.ProxyPort
+                });
+
+            _user = _iamClient.CreateUser(new CreateUserRequest
+            {
+                UserName = _username
+            }).User;
+
+            _roleHelper = new RoleHelper(_iamClient);
+            _role = _roleHelper.CreateRoleForUserToAssume(_user);
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+
+            _iamClient.PutRolePolicy(new PutRolePolicyRequest
+            {
+                RoleName = _role.RoleName,
+                PolicyName = "assume-policy-8",
+                PolicyDocument = @"{
+                  ""Version"": ""2012-10-17"",
+                  ""Statement"": [
+                    {
+                      ""Effect"": ""Allow"",
+                      ""Action"": [
+                        ""*""
+                      ],
+                      ""Resource"": [
+                        ""*""
+                      ]
+                    }
+                  ]
+                }"
+            });
+
+            _awsConfiguration.RoleArn = _role.Arn;
             _deployer = new Deployer(_awsConfiguration);
 
             DeletePreviousTestStack();
@@ -45,6 +86,8 @@ namespace TTC.Deployment.Tests
         [TestFixtureTearDown]
         public void TestFixtureTearDown()
         {
+            _roleHelper.DeleteRole(_role.RoleName);
+            _roleHelper.DeleteUser(_username);
             DeletePreviousTestStack();
         }
 

@@ -17,7 +17,7 @@ namespace AWSS3Push
                 AssumeRoleTrustDocument = options.AssumeRolePolicyPath,
                 IamRolePolicyDocument = options.S3AccessPolicyDocumentPath,
                 Bucket = options.BucketName,
-                RoleName = "S3-Push",
+                RoleArn = "S3-Push",
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.RegionEndpoint)
             });
 
