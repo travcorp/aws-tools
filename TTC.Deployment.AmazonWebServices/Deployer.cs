@@ -99,7 +99,7 @@ namespace TTC.Deployment.AmazonWebServices
                 StackName = stackName,
                 TemplateBody = File.ReadAllText(templatePath),
                 Capabilities = new List<string> { Capability.CAPABILITY_IAM },
-                DisableRollback = true
+                DisableRollback = false
             });
 
             WaitForStack(stackName);

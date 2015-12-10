@@ -3,6 +3,7 @@ using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
+using System.Threading;
 
 namespace TTC.Deployment.Tests
 {
@@ -39,12 +40,13 @@ namespace TTC.Deployment.Tests
 
             _user = _iamClient.CreateUser(new CreateUserRequest
             {
-                UserName = "TestDeployerUserM"
+                UserName = "TestDeployerUserASG2"
             }).User;
 
 
             _roleHelper = new RoleHelper(_iamClient);
             _role = _roleHelper.CreateRoleForUserToAssume(_user);
+    
 
             _iamClient.PutRolePolicy(new PutRolePolicyRequest
             {
@@ -65,8 +67,9 @@ namespace TTC.Deployment.Tests
                   ]
                 }"
             });
+            Thread.Sleep(TimeSpan.FromSeconds(10));
+            _awsConfiguration.RoleName = _role.Arn;
 
-           
             _deployer = new Deployer(_awsConfiguration);
 
             DeletePreviousTestStack();
@@ -82,7 +85,7 @@ namespace TTC.Deployment.Tests
         public void TearDown()
         {
             _roleHelper.DeleteRole(_role.Arn);
-            _roleHelper.DeleteUser("TestDeployerUserB");
+            _roleHelper.DeleteUser("TestDeployerUserASG2");
             DeletePreviousTestStack();
         }
 
