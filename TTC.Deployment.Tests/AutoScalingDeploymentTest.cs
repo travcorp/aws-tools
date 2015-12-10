@@ -39,13 +39,34 @@ namespace TTC.Deployment.Tests
 
             _user = _iamClient.CreateUser(new CreateUserRequest
             {
-                UserName = "TestDeployerUser"
+                UserName = "TestDeployerUserM"
             }).User;
 
 
             _roleHelper = new RoleHelper(_iamClient);
             _role = _roleHelper.CreateRoleForUserToAssume(_user);
 
+            _iamClient.PutRolePolicy(new PutRolePolicyRequest
+            {
+                RoleName = _role.RoleName,
+                PolicyName = "assume-policy-8",
+                PolicyDocument = @"{
+                  ""Version"": ""2012-10-17"",
+                  ""Statement"": [
+                    {
+                      ""Effect"": ""Allow"",
+                      ""Action"": [
+                        ""*""
+                      ],
+                      ""Resource"": [
+                        ""*""
+                      ]
+                    }
+                  ]
+                }"
+            });
+
+           
             _deployer = new Deployer(_awsConfiguration);
 
             DeletePreviousTestStack();
@@ -61,7 +82,7 @@ namespace TTC.Deployment.Tests
         public void TearDown()
         {
             _roleHelper.DeleteRole(_role.Arn);
-            _roleHelper.DeleteUser("TestDeployerUser");
+            _roleHelper.DeleteUser("TestDeployerUserB");
             DeletePreviousTestStack();
         }
 

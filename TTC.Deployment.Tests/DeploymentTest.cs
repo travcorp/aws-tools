@@ -21,6 +21,7 @@ namespace TTC.Deployment.Tests
         private Stack _stack;
         const string StackName = "AwsToolsTestVPC";
         private static bool _hasCreatedStack;
+        private string _username = "TestDeployerUserZ";
 
         [SetUp]
         public void EnsureStackExists()
@@ -42,12 +43,33 @@ namespace TTC.Deployment.Tests
 
             _user = _iamClient.CreateUser(new CreateUserRequest
             {
-                UserName = "TestDeployerUser201"
+                UserName = _username
             }).User;
 
             _roleHelper = new RoleHelper(_iamClient);
             _role = _roleHelper.CreateRoleForUserToAssume(_user);
             Thread.Sleep(TimeSpan.FromSeconds(10));
+
+            _iamClient.PutRolePolicy(new PutRolePolicyRequest
+            {
+                RoleName = _role.RoleName,
+                PolicyName = "assume-policy-8",
+                PolicyDocument = @"{
+                  ""Version"": ""2012-10-17"",
+                  ""Statement"": [
+                    {
+                      ""Effect"": ""Allow"",
+                      ""Action"": [
+                        ""*""
+                      ],
+                      ""Resource"": [
+                        ""*""
+                      ]
+                    }
+                  ]
+                }"
+            });
+
             _awsConfiguration.RoleName = _role.Arn;
             _deployer = new Deployer(_awsConfiguration);
 
@@ -64,7 +86,7 @@ namespace TTC.Deployment.Tests
         public void TestFixtureTearDown()
         {
             _roleHelper.DeleteRole(_role.Arn);
-            _roleHelper.DeleteUser("TestDeployerUser201");
+            _roleHelper.DeleteUser(_username);
             DeletePreviousTestStack();
         }
 
