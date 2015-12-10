@@ -18,7 +18,7 @@ namespace AWSPushAndDeploy
                 AssumeRoleTrustDocument = options.AssumeRolePolicyPath,
                 IamRolePolicyDocument = options.S3AccessPolicyDocumentPath,
                 Bucket = options.BucketName,
-                RoleName = options.RoleName,
+                RoleArn = options.RoleName,
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.RegionEndpoint), 
                 Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort }
             });

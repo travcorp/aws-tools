@@ -83,7 +83,7 @@ namespace TTC.Deployment.Tests
 
             Thread.Sleep(TimeSpan.FromSeconds(10));
 
-            _awsConfiguration.RoleName = _role.Arn;
+            _awsConfiguration.RoleArn = _role.Arn;
             var deployer = new Deployer(_awsConfiguration);
             deployer.CreateStack(new StackTemplate {
                 StackName = "SimpleBucketTestStack",

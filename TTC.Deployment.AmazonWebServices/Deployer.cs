@@ -34,14 +34,14 @@ namespace TTC.Deployment.AmazonWebServices
             // TODO: don't use EnvironmentAWSCredentials, because it doesn't support environment variables!
             var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
             
-            if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))
+            if (!string.IsNullOrEmpty(_awsConfiguration.RoleArn))
             {
                 var clientId = Guid.NewGuid();
                 const string sessionName = "Net2User";
 
                 credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest
                 {
-                    RoleArn = awsConfiguration.RoleName,
+                    RoleArn = awsConfiguration.RoleArn,
                     RoleSessionName = sessionName,
                     DurationSeconds = 3600,
                     ExternalId = clientId.ToString()
@@ -153,6 +153,8 @@ namespace TTC.Deployment.AmazonWebServices
         {
             try
             {
+                if (_awsConfiguration.AssumeRoleTrustDocument == null) return;
+
                 _iamClient.CreateRole(new CreateRoleRequest
                 {
                     RoleName = _awsConfiguration.RoleName,
@@ -166,7 +168,7 @@ namespace TTC.Deployment.AmazonWebServices
 
             _iamClient.PutRolePolicy(new PutRolePolicyRequest
             {
-                RoleName = _awsConfiguration.RoleName,
+                RoleName = _awsConfiguration.RoleArn,
                 PolicyName = "s3-releases",
                 PolicyDocument = File.ReadAllText(_awsConfiguration.IamRolePolicyDocument)
             });

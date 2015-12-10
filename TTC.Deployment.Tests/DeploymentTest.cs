@@ -30,7 +30,8 @@ namespace TTC.Deployment.Tests
             _awsConfiguration = new AwsConfiguration
             {
                 AwsEndpoint = TestConfiguration.AwsEndpoint,
-                Credentials = new TestSuiteCredentials()
+                Credentials = new TestSuiteCredentials(),
+                Bucket = "aws-deployment-tools-tests"
             };
 
             _iamClient = new AmazonIdentityManagementServiceClient(
@@ -70,7 +71,7 @@ namespace TTC.Deployment.Tests
                 }"
             });
 
-            _awsConfiguration.RoleName = _role.Arn;
+            _awsConfiguration.RoleArn = _role.Arn;
             _deployer = new Deployer(_awsConfiguration);
 
             DeletePreviousTestStack();
@@ -85,7 +86,7 @@ namespace TTC.Deployment.Tests
         [TestFixtureTearDown]
         public void TestFixtureTearDown()
         {
-            _roleHelper.DeleteRole(_role.Arn);
+            _roleHelper.DeleteRole(_role.RoleName);
             _roleHelper.DeleteUser(_username);
             DeletePreviousTestStack();
         }
