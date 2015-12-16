@@ -28,7 +28,7 @@ namespace TTC.Deployment.Tests
         string _roleName;
 
         private readonly string _userName = "aws_tools_assume_role_test_user";
-        private readonly string _bucketName = "aws-tools-test-bucket-1";
+        private readonly string _bucketName = "aws-tools-test-bucket-01";
 
         [SetUp]
         public void SetUp()

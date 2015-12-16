@@ -7,7 +7,7 @@
     "bucket1": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": "aws-tools-test-bucket-1"
+        "BucketName": "aws-tools-test-bucket-01"
       }
     }
   }
