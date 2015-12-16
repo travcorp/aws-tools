@@ -1,4 +1,5 @@
 using Amazon;
+using Amazon.IdentityManagement.Model;
 using Amazon.Runtime;
 
 namespace TTC.Deployment.AmazonWebServices
@@ -8,6 +9,7 @@ namespace TTC.Deployment.AmazonWebServices
         public string AssumeRoleTrustDocument { get; set; }
         public string IamRolePolicyDocument { get; set; }
         public string Bucket { get; set; }
+        public Role AssumedRole { get; set; }
         public string RoleName { get; set; }
         public RegionEndpoint AwsEndpoint { get; set; }
         public AwsProxy Proxy { private get; set; }

@@ -13,6 +13,7 @@ using Amazon.IdentityManagement.Model;
 using Amazon.S3;
 using Amazon.Runtime;
 using Amazon.SecurityToken;
+using Amazon.SecurityToken.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -22,28 +23,39 @@ namespace TTC.Deployment.AmazonWebServices
         private readonly AmazonCloudFormationClient _cloudFormationClient;
         private readonly AmazonS3Client _s3Client;
         private readonly AmazonIdentityManagementServiceClient _iamClient;
-        private readonly AwsConfiguration _awsConfiguration;
         private readonly AmazonAutoScalingClient _autoScalingClient;
-        private readonly AmazonSecurityTokenServiceClient _securityTokenServiceClient;
+
+        private readonly AwsConfiguration _awsConfiguration;
 
         public Deployer(AwsConfiguration awsConfiguration) {
-            _awsConfiguration = awsConfiguration;
-            _securityTokenServiceClient = new AmazonSecurityTokenServiceClient(_awsConfiguration.AwsEndpoint);
-
             // TODO: don't use EnvironmentAWSCredentials, because it doesn't support environment variables!
             var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
-            
-            if (!string.IsNullOrEmpty(_awsConfiguration.RoleName))
+
+            if (awsConfiguration.AssumedRole == null && !string.IsNullOrWhiteSpace(awsConfiguration.RoleName)) {
+                var serviceClient = new AmazonIdentityManagementServiceClient(awsConfiguration.AwsEndpoint);
+                awsConfiguration.AssumedRole = serviceClient.GetRole(new GetRoleRequest { RoleName = awsConfiguration.RoleName }).Role;
+            }
+
+            if (awsConfiguration.AssumedRole != null)   
             {
-//                var clientId = Guid.NewGuid();
-//                const string sessionName = "Net2User";
-                
-//                credentials = _securityTokenServiceClient.AssumeRole(new AssumeRoleRequest {
-//                    RoleArn = awsConfiguration.RoleName,
-//                    RoleSessionName = sessionName,
-//                    DurationSeconds = 3600,
-//                    ExternalId = clientId.ToString()
-//                }).Credentials;
+                var securityTokenServiceClient = new AmazonSecurityTokenServiceClient(awsConfiguration.AwsEndpoint);
+
+                var assumeRoleResult = securityTokenServiceClient.AssumeRole(new AssumeRoleRequest
+                {
+                    RoleArn = awsConfiguration.AssumedRole.Arn,
+                    DurationSeconds = 3600,
+                    RoleSessionName = "Net2User",
+                    ExternalId = Guid.NewGuid().ToString()
+                });
+
+                Credentials stsCredentials = assumeRoleResult.Credentials;
+
+                SessionAWSCredentials sessionCredentials =
+                          new SessionAWSCredentials(stsCredentials.AccessKeyId,
+                                                    stsCredentials.SecretAccessKey,
+                                                    stsCredentials.SessionToken);
+
+                credentials = sessionCredentials;
             }
 
             _codeDeployClient = new AmazonCodeDeployClient(
@@ -85,6 +97,8 @@ namespace TTC.Deployment.AmazonWebServices
                     ProxyHost = awsConfiguration.ProxyHost,
                     ProxyPort = awsConfiguration.ProxyPort
                 });
+
+            _awsConfiguration = awsConfiguration;
         }
 
         public Stack CreateStack(StackTemplate stackTemplate)
@@ -97,7 +111,7 @@ namespace TTC.Deployment.AmazonWebServices
                 StackName = stackName,
                 TemplateBody = File.ReadAllText(templatePath),
                 Capabilities = new List<string> { Capability.CAPABILITY_IAM },
-                DisableRollback = true
+                DisableRollback = false
             });
 
             WaitForStack(stackName);
@@ -136,7 +150,15 @@ namespace TTC.Deployment.AmazonWebServices
         public void DeployRelease(Release release, string stackName)
         {
             EnsureCodeDeployRoleExists();
-            var deploymentIds = release.Bundles.Select(bundle => bundle.DeployToStack(_codeDeployClient, _iamClient, _autoScalingClient, stackName, _awsConfiguration.RoleName).DeploymentId).ToList();
+            var deploymentIds = release
+                .Bundles
+                .Select(bundle => bundle
+                    .DeployToStack(
+                        _codeDeployClient, 
+                        _iamClient, 
+                        _autoScalingClient, 
+                        stackName, 
+                        _awsConfiguration.AssumedRole).DeploymentId).ToList();
             WaitForBundlesToDeploy(deploymentIds);
         }
 
@@ -149,11 +171,16 @@ namespace TTC.Deployment.AmazonWebServices
 
         private void EnsureCodeDeployRoleExists()
         {
+            if (string.IsNullOrWhiteSpace(_awsConfiguration.AssumeRoleTrustDocument))
+            {
+                return;
+            }
+
             try
             {
                 _iamClient.CreateRole(new CreateRoleRequest
                 {
-                    RoleName = _awsConfiguration.RoleName,
+                    RoleName = _awsConfiguration.AssumedRole.RoleName,
                     AssumeRolePolicyDocument = File.ReadAllText(_awsConfiguration.AssumeRoleTrustDocument)
                 });
             }
@@ -164,7 +191,7 @@ namespace TTC.Deployment.AmazonWebServices
 
             _iamClient.PutRolePolicy(new PutRolePolicyRequest
             {
-                RoleName = _awsConfiguration.RoleName,
+                RoleName = _awsConfiguration.AssumedRole.RoleName,
                 PolicyName = "s3-releases",
                 PolicyDocument = File.ReadAllText(_awsConfiguration.IamRolePolicyDocument)
             });

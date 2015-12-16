@@ -24,17 +24,23 @@ namespace TTC.Deployment.Tests
         [SetUp]
         public void SetUp()
         {
+            var awsEndpoint = TestConfiguration.AwsEndpoint;
+            var credentials = new TestSuiteCredentials();
+
+            _s3Client = new AmazonS3Client(awsEndpoint);
+            _iamClient = new AmazonIdentityManagementServiceClient(awsEndpoint);
+
+            var role = _iamClient.GetRole(new GetRoleRequest { RoleName = "SomeNewRole" });
             _awsConfiguration = new AwsConfiguration
             {
                 IamRolePolicyDocument = Roles.Path("s3-policy-new-bucket.json"),
                 AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
                 Bucket = "s3-push-test",
-                RoleName = "SomeNewRole",
-                Credentials = new TestSuiteCredentials(),
-                AwsEndpoint = TestConfiguration.AwsEndpoint
+                AssumedRole = role.Role,
+                AwsEndpoint = awsEndpoint,
+                Credentials = credentials
             };
-            _s3Client = new AmazonS3Client(_awsConfiguration.AwsEndpoint);
-            _iamClient = new AmazonIdentityManagementServiceClient(_awsConfiguration.AwsEndpoint);
+
             _deployer = new Deployer(_awsConfiguration);
             _localBuildDirectory = ExampleRevisions.Directory("HelloWorld-1.2.3");
             _applicationSetName = "HelloWorld";
@@ -83,7 +89,7 @@ namespace TTC.Deployment.Tests
             {
                 _iamClient.DeleteRolePolicy(new DeleteRolePolicyRequest
                 {
-                    RoleName = _awsConfiguration.RoleName,
+                    RoleName = _awsConfiguration.AssumedRole.RoleName,
                     PolicyName = "s3-releases"
                 });
             }
@@ -93,7 +99,7 @@ namespace TTC.Deployment.Tests
             {
                 _iamClient.DeleteRole(new DeleteRoleRequest
                 {
-                    RoleName = _awsConfiguration.RoleName
+                    RoleName = _awsConfiguration.AssumedRole.RoleName
                 });
             }
             catch (NoSuchEntityException){ }
