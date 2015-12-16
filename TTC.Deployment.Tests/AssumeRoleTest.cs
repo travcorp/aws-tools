@@ -118,7 +118,6 @@ namespace TTC.Deployment.Tests
             {
                 StackName = "SimpleBucketTestStack",
                 TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json"),
-                AssumedRoleARN = _role.Arn
             }));
         }
 
@@ -152,7 +151,6 @@ namespace TTC.Deployment.Tests
        
                 StackName = "SimpleBucketTestStack",
                 TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json"),
-                AssumedRoleARN = _role.Arn
             });
 
             var s3Response = _s3Client.GetBucketLocation(_bucketName);
