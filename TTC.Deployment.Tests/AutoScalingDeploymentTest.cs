@@ -1,14 +1,16 @@
 ﻿using System;
-using System.Configuration;
-using Amazon;
 using NUnit.Framework;
 using TTC.Deployment.AmazonWebServices;
+using Amazon.IdentityManagement.Model;
+using Amazon.IdentityManagement;
+using System.Threading;
 
 namespace TTC.Deployment.Tests
 {
     [TestFixture]
     public class AutoScalingDeploymentTest
     {
+        private AmazonIdentityManagementServiceClient _iamClient;
         private AwsConfiguration _awsConfiguration;
         private Deployer _deployer;
         private Stack _stack;
@@ -30,9 +32,18 @@ namespace TTC.Deployment.Tests
                 Credentials = new TestSuiteCredentials()
             };
 
+            _iamClient = new AmazonIdentityManagementServiceClient(
+                new AmazonIdentityManagementServiceConfig
+                {
+                    RegionEndpoint = _awsConfiguration.AwsEndpoint,
+                    ProxyHost = _awsConfiguration.ProxyHost,
+                    ProxyPort = _awsConfiguration.ProxyPort
+                });
+            
+            DeletePreviousTestStack();
+
             _deployer = new Deployer(_awsConfiguration);
 
-            DeletePreviousTestStack();
             _stack = _deployer.CreateStack(new StackTemplate
             {
                 StackName = StackName,

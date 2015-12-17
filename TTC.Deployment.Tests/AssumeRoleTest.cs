@@ -6,6 +6,7 @@ using System;
 using System.Net;
 using System.Threading;
 using TTC.Deployment.AmazonWebServices;
+using System.Linq;
 
 namespace TTC.Deployment.Tests
 {
@@ -28,8 +29,7 @@ namespace TTC.Deployment.Tests
                 AwsEndpoint = TestConfiguration.AwsEndpoint,
                 Credentials = new TestSuiteCredentials()
             };
-
-
+            
             _iamClient = new AmazonIdentityManagementServiceClient(
                 new AmazonIdentityManagementServiceConfig
                 {
@@ -37,8 +37,7 @@ namespace TTC.Deployment.Tests
                     ProxyHost = _awsConfiguration.ProxyHost,
                     ProxyPort = _awsConfiguration.ProxyPort
                 });
-
-
+            
             var user = _iamClient.CreateUser(new CreateUserRequest
             {
                 UserName = _userName
@@ -92,67 +91,18 @@ namespace TTC.Deployment.Tests
             var s3Response = _s3Client.GetBucketLocation(_bucketName);
             Assert.AreEqual(s3Response.HttpStatusCode, HttpStatusCode.OK);
         }
-
-        private void DeleteRole(string roleName)
-        {
-            try
-            {
-                _iamClient.GetRole(new GetRoleRequest {RoleName = roleName});
-            }
-            catch (NoSuchEntityException)
-            {
-                return;
-            }
-
-            var rolePoliciesResponse = _iamClient.ListRolePolicies(new ListRolePoliciesRequest { RoleName = roleName });
-
-            foreach (var p in rolePoliciesResponse.PolicyNames)
-            {
-                var request = new DeleteRolePolicyRequest { PolicyName = p, RoleName = roleName };
-                IgnoringNoSuchEntity(() => _iamClient.DeleteRolePolicy(request));
-            }
-
-            IgnoringNoSuchEntity(() => _iamClient.DeleteRole(new DeleteRoleRequest { RoleName = roleName }));
-        }
-
+        
         private void DeletePreviousTestStack()
         {
-            DeleteRole("some_role_that_is_no_good_test");
-            DeleteUser(_userName);
+            _iamClient.DeleteRole("some_role_that_is_no_good_test");
+            _iamClient.DeleteUser(_userName);
             StackHelper.DeleteStack(_awsConfiguration.AwsEndpoint, "SimpleBucketTestStack");
-            IgnoringNoSuchBucket(() => _s3Client.DeleteBucket(_bucketName));
+            if (_s3Client.ListBuckets().Buckets.Any(x => x.BucketName == _bucketName)) {
+                _s3Client.DeleteBucket(_bucketName);
+            }
         }
 
-        private void DeleteUser(string userName)
-        {
-            try
-            {
-                var userPolicies =
-                    _iamClient.ListUserPolicies(new ListUserPoliciesRequest {UserName = userName}).PolicyNames;
-
-                foreach (var policy in userPolicies)
-                {
-                    var request = new DeleteUserPolicyRequest {UserName = userName, PolicyName = policy};
-                    IgnoringNoSuchEntity(() => { _iamClient.DeleteUserPolicy(request); });
-                }
-            }
-            catch (NoSuchEntityException)
-            {
-                return;
-            }
-
-            var keys = _iamClient.ListAccessKeys(new ListAccessKeysRequest { UserName = _userName });
-
-            foreach (var key in keys.AccessKeyMetadata)
-            {
-                var request = new DeleteAccessKeyRequest { UserName = userName, AccessKeyId = key.AccessKeyId };
-                IgnoringNoSuchEntity(() => { _iamClient.DeleteAccessKey(request); });
-            }
-
-            IgnoringNoSuchEntity(() => _iamClient.DeleteUser(new DeleteUserRequest { UserName = userName }));
-        }
-
-        private void IgnoringNoSuchEntity(Action action)
+        public void IgnoringNoSuchEntity(Action action)
         {
             try
             {
@@ -161,18 +111,6 @@ namespace TTC.Deployment.Tests
             catch (NoSuchEntityException)
             {
                 Console.WriteLine("Ignoring no such entity...");
-            }
-        }
-
-        private void IgnoringNoSuchBucket(Action action)
-        {
-            try
-            {
-                action();
-            }
-            catch (AmazonS3Exception)
-            {
-                Console.WriteLine("Ignoring no such bucket...");
             }
         }
 

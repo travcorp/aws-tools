@@ -29,14 +29,13 @@ namespace TTC.Deployment.Tests
 
             _s3Client = new AmazonS3Client(awsEndpoint);
             _iamClient = new AmazonIdentityManagementServiceClient(awsEndpoint);
-
-            var role = _iamClient.GetRole(new GetRoleRequest { RoleName = "SomeNewRole" });
+            
             _awsConfiguration = new AwsConfiguration
             {
                 IamRolePolicyDocument = Roles.Path("s3-policy-new-bucket.json"),
                 AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
                 Bucket = "s3-push-test",
-                AssumedRole = role.Role,
+                RoleName = "SomeNewRole",
                 AwsEndpoint = awsEndpoint,
                 Credentials = credentials
             };
@@ -89,7 +88,7 @@ namespace TTC.Deployment.Tests
             {
                 _iamClient.DeleteRolePolicy(new DeleteRolePolicyRequest
                 {
-                    RoleName = _awsConfiguration.AssumedRole.RoleName,
+                    RoleName = _awsConfiguration.RoleName,
                     PolicyName = "s3-releases"
                 });
             }
@@ -99,7 +98,7 @@ namespace TTC.Deployment.Tests
             {
                 _iamClient.DeleteRole(new DeleteRoleRequest
                 {
-                    RoleName = _awsConfiguration.AssumedRole.RoleName
+                    RoleName = _awsConfiguration.RoleName
                 });
             }
             catch (NoSuchEntityException){ }

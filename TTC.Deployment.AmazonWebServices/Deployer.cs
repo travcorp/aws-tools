@@ -30,12 +30,7 @@ namespace TTC.Deployment.AmazonWebServices
         public Deployer(AwsConfiguration awsConfiguration) {
             // TODO: don't use EnvironmentAWSCredentials, because it doesn't support environment variables!
             var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
-
-            if (awsConfiguration.AssumedRole == null && !string.IsNullOrWhiteSpace(awsConfiguration.RoleName)) {
-                var serviceClient = new AmazonIdentityManagementServiceClient(awsConfiguration.AwsEndpoint);
-                awsConfiguration.AssumedRole = serviceClient.GetRole(new GetRoleRequest { RoleName = awsConfiguration.RoleName }).Role;
-            }
-
+            
             if (awsConfiguration.AssumedRole != null)   
             {
                 var securityTokenServiceClient = new AmazonSecurityTokenServiceClient(awsConfiguration.AwsEndpoint);
@@ -47,7 +42,7 @@ namespace TTC.Deployment.AmazonWebServices
                     RoleSessionName = "Net2User",
                     ExternalId = Guid.NewGuid().ToString()
                 });
-
+                
                 Credentials stsCredentials = assumeRoleResult.Credentials;
 
                 SessionAWSCredentials sessionCredentials =
@@ -56,6 +51,9 @@ namespace TTC.Deployment.AmazonWebServices
                                                     stsCredentials.SessionToken);
 
                 credentials = sessionCredentials;
+
+                awsConfiguration.Role = awsConfiguration.AssumedRole;
+                awsConfiguration.RoleName = awsConfiguration.Role.RoleName;
             }
 
             _codeDeployClient = new AmazonCodeDeployClient(
@@ -158,7 +156,7 @@ namespace TTC.Deployment.AmazonWebServices
                         _iamClient, 
                         _autoScalingClient, 
                         stackName, 
-                        _awsConfiguration.AssumedRole).DeploymentId).ToList();
+                        _awsConfiguration.Role).DeploymentId).ToList();
             WaitForBundlesToDeploy(deploymentIds);
         }
 
@@ -176,22 +174,31 @@ namespace TTC.Deployment.AmazonWebServices
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(_awsConfiguration.RoleName))
+            {
+                return;
+            }
+
             try
             {
-                _iamClient.CreateRole(new CreateRoleRequest
+                var response = _iamClient.CreateRole(new CreateRoleRequest
                 {
-                    RoleName = _awsConfiguration.AssumedRole.RoleName,
+                    RoleName = _awsConfiguration.RoleName,
                     AssumeRolePolicyDocument = File.ReadAllText(_awsConfiguration.AssumeRoleTrustDocument)
                 });
+
+                _awsConfiguration.Role = response.Role;
             }
             catch (EntityAlreadyExistsException)
             {
+                _awsConfiguration.Role = 
+                    _iamClient.GetRole(new GetRoleRequest { RoleName = _awsConfiguration.RoleName }).Role;
                 return;
             }
 
             _iamClient.PutRolePolicy(new PutRolePolicyRequest
             {
-                RoleName = _awsConfiguration.AssumedRole.RoleName,
+                RoleName = _awsConfiguration.Role.RoleName,
                 PolicyName = "s3-releases",
                 PolicyDocument = File.ReadAllText(_awsConfiguration.IamRolePolicyDocument)
             });
