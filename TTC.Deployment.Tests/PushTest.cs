@@ -24,17 +24,22 @@ namespace TTC.Deployment.Tests
         [SetUp]
         public void SetUp()
         {
+            var awsEndpoint = TestConfiguration.AwsEndpoint;
+            var credentials = new TestSuiteCredentials();
+
+            _s3Client = new AmazonS3Client(awsEndpoint);
+            _iamClient = new AmazonIdentityManagementServiceClient(awsEndpoint);
+            
             _awsConfiguration = new AwsConfiguration
             {
                 IamRolePolicyDocument = Roles.Path("s3-policy-new-bucket.json"),
                 AssumeRoleTrustDocument = Roles.Path("code-deploy-trust.json"),
                 Bucket = "s3-push-test",
                 RoleName = "SomeNewRole",
-                Credentials = new TestSuiteCredentials(),
-                AwsEndpoint = TestConfiguration.AwsEndpoint
+                AwsEndpoint = awsEndpoint,
+                Credentials = credentials
             };
-            _s3Client = new AmazonS3Client(_awsConfiguration.AwsEndpoint);
-            _iamClient = new AmazonIdentityManagementServiceClient(_awsConfiguration.AwsEndpoint);
+
             _deployer = new Deployer(_awsConfiguration);
             _localBuildDirectory = ExampleRevisions.Directory("HelloWorld-1.2.3");
             _applicationSetName = "HelloWorld";

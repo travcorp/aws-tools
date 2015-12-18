@@ -65,11 +65,16 @@ namespace TTC.Deployment.AmazonWebServices
             get { return _version; }
         }
 
-        public CreateDeploymentResponse DeployToStack(AmazonCodeDeployClient codeDeployClient, AmazonIdentityManagementServiceClient iamClient, AmazonAutoScalingClient autoScalingClient, string stackName, string roleName)
+        public CreateDeploymentResponse DeployToStack(
+            AmazonCodeDeployClient codeDeployClient, 
+            AmazonIdentityManagementServiceClient iamClient, 
+            AmazonAutoScalingClient autoScalingClient, 
+            string stackName, 
+            Role role)
         {
             var deploymentGroupName = stackName + "_" + BundleName;
 
-            EnsureDeploymentGroupExistsForBundle(codeDeployClient, iamClient, autoScalingClient, roleName, deploymentGroupName);
+            EnsureDeploymentGroupExistsForBundle(codeDeployClient, iamClient, autoScalingClient, role, deploymentGroupName);
 
             var deploymentResponse = codeDeployClient.CreateDeployment(new CreateDeploymentRequest
             {
@@ -106,15 +111,8 @@ namespace TTC.Deployment.AmazonWebServices
             get { return DeploymentGroup.IsAutoScaling; }
         }
 
-        void EnsureDeploymentGroupExistsForBundle(AmazonCodeDeployClient codeDeployClient, AmazonIdentityManagementServiceClient iamClient, AmazonAutoScalingClient autoScalingClient, string roleName, string deploymentGroupName)
+        void EnsureDeploymentGroupExistsForBundle(AmazonCodeDeployClient codeDeployClient, AmazonIdentityManagementServiceClient iamClient, AmazonAutoScalingClient autoScalingClient, Role role, string deploymentGroupName)
         {
-            var getRoleResponse = iamClient.GetRole(new GetRoleRequest
-            {
-                RoleName = roleName
-            });
-
-            var serviceRoleArn = getRoleResponse.Role.Arn;
-
             if (TargetsAutoScalingDeploymentGroup)
             {
                 var group =
@@ -130,7 +128,7 @@ namespace TTC.Deployment.AmazonWebServices
                 {
                     ApplicationName = CodeDeployApplicationName,
                     DeploymentGroupName = deploymentGroupName,
-                    ServiceRoleArn = serviceRoleArn,
+                    ServiceRoleArn = role.Arn,
                     AutoScalingGroups = new List<string> { group.AutoScalingGroupName }
                 });
             }
@@ -142,7 +140,7 @@ namespace TTC.Deployment.AmazonWebServices
                     {
                         ApplicationName = CodeDeployApplicationName,
                         DeploymentGroupName = deploymentGroupName,
-                        ServiceRoleArn = serviceRoleArn,
+                        ServiceRoleArn = role.Arn,
                         Ec2TagFilters = new List<EC2TagFilter>
                     {
                         new EC2TagFilter
