@@ -10,12 +10,8 @@ namespace AWSPushAndDeploy
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("prog start opts:" + string.Join(",", args));
-
             var options = new Options();
             if (!Parser.Default.ParseArguments(args, options)) return;
-
-            Console.WriteLine("prog start Bucket Name:" + options.BucketName);
 
             var deployer = new Deployer(new AwsConfiguration
             {

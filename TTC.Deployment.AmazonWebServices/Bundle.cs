@@ -46,10 +46,7 @@ namespace TTC.Deployment.AmazonWebServices
 
         public string Bucket
         {
-            get {
-
-                Console.WriteLine("Bucket GET: " + _bucket);
-                return _bucket; }
+            get { return _bucket; }
         }
 
         public string BundleName
@@ -180,7 +177,7 @@ namespace TTC.Deployment.AmazonWebServices
 
             if (!allTheBuckets.Exists(b => b.BucketName == Bucket))
             {
-                s3Client.PutBucket(new PutBucketRequest { BucketName = Bucket, UseClientRegion = true, });
+                s3Client.PutBucket(new PutBucketRequest { BucketName = Bucket, UseClientRegion = true });
             }
             
             var putResponse = s3Client.PutObject(new PutObjectRequest
