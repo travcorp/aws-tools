@@ -73,7 +73,7 @@ namespace TTC.Deployment.Tests
                 LocalDirectory = @".\ExampleRevisions\HelloWorld-AutoScaling"
             });
 
-            _deployer.DeployRelease(goodRevision, StackName);
+            _deployer.DeployRelease(goodRevision, StackName, "CodeDeployRole");
 
             var publicDnsName = _stack.Outputs["publicDnsName"];
             var homePageUrl = string.Format("http://{0}/index.aspx", publicDnsName);

@@ -76,7 +76,7 @@ namespace TTC.Deployment.Tests
 
            try
            {
-               _deployer.DeployRelease(badRevision, StackName);
+               _deployer.DeployRelease(badRevision, StackName, "CodeDeployRole");
                Assert.Fail("Expected DeploymentsFailedException");
            }
            catch (DeploymentsFailedException e)
@@ -97,7 +97,7 @@ namespace TTC.Deployment.Tests
 
             try
             {
-                _deployer.DeployRelease(badRevision, StackName);
+                _deployer.DeployRelease(badRevision, StackName, "CodeDeployRole");
                 Assert.Fail("Expected DeploymentsFailedException");
             }
             catch (DeploymentsFailedException e)
@@ -117,7 +117,7 @@ namespace TTC.Deployment.Tests
                 LocalDirectory = ExampleRevisions.Directory("HelloWorld-1.2.3")
             });
 
-            _deployer.DeployRelease(goodRevision, StackName);
+            _deployer.DeployRelease(goodRevision, StackName, "CodeDeployRole");
 
             var publicDnsName = _stack.Outputs.First(o => o.Key == "publicDnsName").Value;
             var homePageUrl = string.Format("http://{0}/index.aspx", publicDnsName);

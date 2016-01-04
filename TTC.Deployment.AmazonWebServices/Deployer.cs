@@ -14,6 +14,7 @@ using Amazon.S3;
 using Amazon.Runtime;
 using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
+using Amazon;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -25,24 +26,30 @@ namespace TTC.Deployment.AmazonWebServices
         private readonly AmazonIdentityManagementServiceClient _iamClient;
         private readonly AmazonAutoScalingClient _autoScalingClient;
 
-        private readonly AwsConfiguration _awsConfiguration;
+        private readonly RegionEndpoint _awsEndpoint;
+        private readonly string _bucket;
+        private readonly string _assumeRoleTrustDocument;
+        private readonly Role _role;
+        private readonly string _iamRolePolicyDocument;
 
         public Deployer(AwsConfiguration awsConfiguration) {
-            // TODO: don't use EnvironmentAWSCredentials, because it doesn't support environment variables!
-            var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
-            
-            if (awsConfiguration.AssumedRole != null)   
+            _awsEndpoint = awsConfiguration.AwsEndpoint;
+            _bucket = awsConfiguration.Bucket;
+            _assumeRoleTrustDocument = awsConfiguration.AssumeRoleTrustDocument;
+            _iamRolePolicyDocument = awsConfiguration.IamRolePolicyDocument;
+
+            if (isArn(awsConfiguration.RoleName))
             {
                 var securityTokenServiceClient = new AmazonSecurityTokenServiceClient(awsConfiguration.AwsEndpoint);
 
                 var assumeRoleResult = securityTokenServiceClient.AssumeRole(new AssumeRoleRequest
                 {
-                    RoleArn = awsConfiguration.AssumedRole.Arn,
+                    RoleArn = awsConfiguration.RoleName,
                     DurationSeconds = 3600,
                     RoleSessionName = "Net2User",
                     ExternalId = Guid.NewGuid().ToString()
                 });
-                
+
                 Credentials stsCredentials = assumeRoleResult.Credentials;
 
                 SessionAWSCredentials sessionCredentials =
@@ -50,14 +57,16 @@ namespace TTC.Deployment.AmazonWebServices
                                                     stsCredentials.SecretAccessKey,
                                                     stsCredentials.SessionToken);
 
-                credentials = sessionCredentials;
+                awsConfiguration.Credentials = sessionCredentials;
 
-                awsConfiguration.Role = awsConfiguration.AssumedRole;
-                awsConfiguration.RoleName = awsConfiguration.Role.RoleName;
+                _role = new AssumedRole(assumeRoleResult.AssumedRoleUser);
+            }
+            else {
+                awsConfiguration.Credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
             }
 
             _codeDeployClient = new AmazonCodeDeployClient(
-                credentials,
+                awsConfiguration.Credentials,
                 new AmazonCodeDeployConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.ProxyHost, 
@@ -65,7 +74,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _cloudFormationClient = new AmazonCloudFormationClient(
-                credentials,
+                awsConfiguration.Credentials,
                 new AmazonCloudFormationConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.ProxyHost, 
@@ -73,7 +82,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _s3Client = new AmazonS3Client(
-                credentials,
+                awsConfiguration.Credentials,
                 new AmazonS3Config {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.ProxyHost, 
@@ -81,7 +90,7 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _iamClient = new AmazonIdentityManagementServiceClient(
-                credentials,
+                awsConfiguration.Credentials,
                 new AmazonIdentityManagementServiceConfig  {
                     RegionEndpoint = awsConfiguration.AwsEndpoint, 
                     ProxyHost = awsConfiguration.ProxyHost, 
@@ -89,14 +98,17 @@ namespace TTC.Deployment.AmazonWebServices
                 });
 
             _autoScalingClient = new AmazonAutoScalingClient(
-                credentials,
+                awsConfiguration.Credentials,
                 new AmazonAutoScalingConfig {
                     RegionEndpoint = awsConfiguration.AwsEndpoint,
                     ProxyHost = awsConfiguration.ProxyHost,
                     ProxyPort = awsConfiguration.ProxyPort
                 });
+        }
 
-            _awsConfiguration = awsConfiguration;
+        private bool isArn(string roleName)
+        {
+            return roleName.StartsWith("arn:", StringComparison.OrdinalIgnoreCase);
         }
 
         public Stack CreateStack(StackTemplate stackTemplate)
@@ -133,21 +145,30 @@ namespace TTC.Deployment.AmazonWebServices
             if (status != StackStatus.CREATE_COMPLETE)
             {
                 var eventsResponse = _cloudFormationClient.DescribeStackEvents(new DescribeStackEventsRequest { StackName = stackName });
-                throw new FailedToCreateStackException(stackName, _awsConfiguration.AwsEndpoint, status.Value, statusReason, eventsResponse.StackEvents);
+                throw new FailedToCreateStackException(stackName, _awsEndpoint, status.Value, statusReason, eventsResponse.StackEvents);
             }
         }
 
         public Release PushRevision(ApplicationSetRevision applicationSetRevision)
         {
-            EnsureCodeDeployRoleExists();
-            var subdirectories = Directory.GetDirectories(applicationSetRevision.LocalDirectory).Select(sd => new DirectoryInfo(sd));
-            var bundles = subdirectories.Select(subdirectory => PushBundleForSubdirectory(applicationSetRevision, subdirectory, _awsConfiguration.Bucket)).ToArray();
-            return new Release(applicationSetRevision.ApplicationSetName, applicationSetRevision.Version, bundles);
+            var subdirectories = Directory
+                .GetDirectories(applicationSetRevision.LocalDirectory)
+                .Select(sd => new DirectoryInfo(sd));
+
+            var bundles = subdirectories
+                .Select(subdirectory => 
+                    PushBundleForSubdirectory(applicationSetRevision, subdirectory, _bucket)).ToArray();
+
+            return new Release(
+                applicationSetRevision.ApplicationSetName, 
+                applicationSetRevision.Version, 
+                bundles);
         }
 
-        public void DeployRelease(Release release, string stackName)
+        public void DeployRelease(Release release, string stackName, string codeDeployRoleName)
         {
-            EnsureCodeDeployRoleExists();
+            var role = GetOrCreateCodeDeployRole(codeDeployRoleName);
+
             var deploymentIds = release
                 .Bundles
                 .Select(bundle => bundle
@@ -155,53 +176,58 @@ namespace TTC.Deployment.AmazonWebServices
                         _codeDeployClient, 
                         _iamClient, 
                         _autoScalingClient, 
-                        stackName, 
-                        _awsConfiguration.Role).DeploymentId).ToList();
+                        stackName,
+                        role).DeploymentId).ToList();
+
             WaitForBundlesToDeploy(deploymentIds);
         }
 
         private Bundle PushBundleForSubdirectory(ApplicationSetRevision applicationSetRevision, DirectoryInfo subdirectory, string bucket)
         {
-            var bundle = new Bundle(applicationSetRevision.ApplicationSetName, subdirectory, applicationSetRevision.Version, bucket, null);
+            var bundle = new Bundle(
+                applicationSetRevision.ApplicationSetName, 
+                subdirectory, 
+                applicationSetRevision.Version, 
+                bucket, 
+                null);
+
             bundle.Push(_s3Client, _codeDeployClient);
+
             return bundle;
         }
 
-        private void EnsureCodeDeployRoleExists()
+        private Role GetOrCreateCodeDeployRole(string codeDeployRoleName)
         {
-            if (string.IsNullOrWhiteSpace(_awsConfiguration.AssumeRoleTrustDocument))
+            if (string.IsNullOrWhiteSpace(_assumeRoleTrustDocument))
             {
-                return;
+                return null;
             }
 
-            if (string.IsNullOrWhiteSpace(_awsConfiguration.RoleName))
-            {
-                return;
-            }
-
+            Role role;
             try
             {
                 var response = _iamClient.CreateRole(new CreateRoleRequest
                 {
-                    RoleName = _awsConfiguration.RoleName,
-                    AssumeRolePolicyDocument = File.ReadAllText(_awsConfiguration.AssumeRoleTrustDocument)
+                    RoleName = codeDeployRoleName,
+                    AssumeRolePolicyDocument = File.ReadAllText(_assumeRoleTrustDocument)
                 });
 
-                _awsConfiguration.Role = response.Role;
+                role = response.Role;
             }
             catch (EntityAlreadyExistsException)
             {
-                _awsConfiguration.Role = 
-                    _iamClient.GetRole(new GetRoleRequest { RoleName = _awsConfiguration.RoleName }).Role;
-                return;
+                role =
+                    _iamClient.GetRole(new GetRoleRequest { RoleName = codeDeployRoleName }).Role;
             }
-
+            
             _iamClient.PutRolePolicy(new PutRolePolicyRequest
-            {
-                RoleName = _awsConfiguration.Role.RoleName,
+            { 
+                RoleName = role.RoleName,
                 PolicyName = "s3-releases",
-                PolicyDocument = File.ReadAllText(_awsConfiguration.IamRolePolicyDocument)
+                PolicyDocument = File.ReadAllText(_iamRolePolicyDocument)
             });
+
+            return role;
         }
 
         private void WaitForBundlesToDeploy(List<string> deploymentIds)
@@ -247,6 +273,18 @@ namespace TTC.Deployment.AmazonWebServices
             }
 
             return allFailedInstances.ToArray();
+        }
+
+        private class AssumedRole : Role
+        {
+            public AssumedRole(AssumedRoleUser assumedRoleUser)
+            {
+                this.Path = "/";
+                this.Arn = assumedRoleUser.Arn;
+                this.CreateDate = DateTime.Now;
+                this.RoleId = assumedRoleUser.AssumedRoleId;
+                this.RoleName = assumedRoleUser.Arn.Split('/')[1];
+            }
         }
     }
 }

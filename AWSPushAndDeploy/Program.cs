@@ -10,8 +10,12 @@ namespace AWSPushAndDeploy
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("prog start opts:" + string.Join(",", args));
+
             var options = new Options();
             if (!Parser.Default.ParseArguments(args, options)) return;
+
+            Console.WriteLine("prog start Bucket Name:" + options.BucketName);
 
             var deployer = new Deployer(new AwsConfiguration
             {
@@ -19,6 +23,7 @@ namespace AWSPushAndDeploy
                 IamRolePolicyDocument = options.S3AccessPolicyDocumentPath,
                 Bucket = options.BucketName,
                 RoleName = options.RoleName,
+                CodeDeployRoleName = options.CodeDeployRoleName,
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.RegionEndpoint), 
                 Proxy = new AwsProxy{ Host = options.ProxyHost, Port = options.ProxyPort }
             });
@@ -30,12 +35,13 @@ namespace AWSPushAndDeploy
             });
             try
             {
-                deployer.DeployRelease(revision, options.StackName);
+                deployer.DeployRelease(revision, options.StackName, options.CodeDeployRoleName);
             }
             catch (Exception e)
             {
                 Console.WriteLine("AWS Push And Deploy Error:");
                 Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
                 Environment.Exit(666);
             }
         }
@@ -58,7 +64,7 @@ namespace AWSPushAndDeploy
         [Option('p', "IAMRolePolicyDocumentPath", Required = true, HelpText = "Path to IAM role policy document")]
         public string S3AccessPolicyDocumentPath { get; set; }
 
-        [Option('n', "bucketName", Required = true, HelpText = "S3 bucket name to create / use")]
+        [Option('l', "bucketName", Required = true, HelpText = "S3 bucket name to create / use")]
         public string BucketName { get; set; }
 
         [Option('b', "buildDirectoryPath", Required = true, HelpText = "Path to build directory")]
@@ -73,9 +79,12 @@ namespace AWSPushAndDeploy
         [Option('e', "regionEndpoint", Required = false, HelpText = "Amazon region endpoint", DefaultValue = "us-east-1")]
         public string RegionEndpoint { get; set; }
 
-        [Option('n', "roleName", Required = false, HelpText = "Assume role name", DefaultValue = "CodeDeployRole")]
+        [Option('n', "roleName", Required = false, HelpText = "Assume role name")]
         public string RoleName { get; set; }
 
+        [Option('c', "codeDeployRoleName", Required = false, HelpText = "Assume code deploy role")]
+        public string CodeDeployRoleName { get; set; }
+        
         [HelpOption]
         public string GetUsage()
         {
