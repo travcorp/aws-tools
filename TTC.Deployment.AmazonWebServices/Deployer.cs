@@ -108,6 +108,10 @@ namespace TTC.Deployment.AmazonWebServices
 
         private bool isArn(string roleName)
         {
+            if (string.IsNullOrWhiteSpace(roleName)) {
+                return false;
+            }
+
             return roleName.StartsWith("arn:", StringComparison.OrdinalIgnoreCase);
         }
 
