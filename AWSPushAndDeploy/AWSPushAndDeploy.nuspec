@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>AWSPushAndDeploy</id>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <title>AWSPushAndDeploy</title>
     <authors>TravCorp</authors>
     <owners>TravCorp</owners>
@@ -23,6 +23,7 @@
     <file src="bin\Release\*.config" target="lib\net45" />
   </files>
 </package>
+
 
 
 
