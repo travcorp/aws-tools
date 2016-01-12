@@ -11,6 +11,7 @@ using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.Runtime.Internal;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -33,6 +34,9 @@ namespace TTC.Deployment.AmazonWebServices
             _bucket = bucket;
             _etag = etag;
             _deploymentGroup = DeploymentGroupSpecification.FromFile(Path.Combine(_bundleDirectory.FullName, "deployspec.yml"));
+
+
+            Console.WriteLine("Bucket initialized with bucket: " + bucket);
         }
 
         public string ApplicationSetName
@@ -113,6 +117,8 @@ namespace TTC.Deployment.AmazonWebServices
 
         void EnsureDeploymentGroupExistsForBundle(AmazonCodeDeployClient codeDeployClient, AmazonIdentityManagementServiceClient iamClient, AmazonAutoScalingClient autoScalingClient, Role role, string deploymentGroupName)
         {
+            var serviceRoleArn = role.Arn;
+
             if (TargetsAutoScalingDeploymentGroup)
             {
                 var group =
@@ -128,7 +134,7 @@ namespace TTC.Deployment.AmazonWebServices
                 {
                     ApplicationName = CodeDeployApplicationName,
                     DeploymentGroupName = deploymentGroupName,
-                    ServiceRoleArn = role.Arn,
+                    ServiceRoleArn = serviceRoleArn,
                     AutoScalingGroups = new List<string> { group.AutoScalingGroupName }
                 });
             }
@@ -136,11 +142,12 @@ namespace TTC.Deployment.AmazonWebServices
             {
                 try
                 {
+                    Console.WriteLine("Will assume role {0} for deployment", serviceRoleArn);
                     codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
                     {
                         ApplicationName = CodeDeployApplicationName,
                         DeploymentGroupName = deploymentGroupName,
-                        ServiceRoleArn = role.Arn,
+                        ServiceRoleArn = serviceRoleArn,
                         Ec2TagFilters = new List<EC2TagFilter>
                     {
                         new EC2TagFilter
@@ -165,19 +172,19 @@ namespace TTC.Deployment.AmazonWebServices
             var tempPath = Path.Combine(Path.GetTempPath(), zipFileName + "." + Guid.NewGuid() + ".zip");
 
             ZipFile.CreateFromDirectory(_bundleDirectory.FullName, tempPath, CompressionLevel.Optimal, false, Encoding.ASCII);
-
+            
             var allTheBuckets = s3Client.ListBuckets(new ListBucketsRequest()).Buckets;
 
             if (!allTheBuckets.Exists(b => b.BucketName == Bucket))
             {
                 s3Client.PutBucket(new PutBucketRequest { BucketName = Bucket, UseClientRegion = true });
             }
-
+            
             var putResponse = s3Client.PutObject(new PutObjectRequest
             {
                 BucketName = Bucket,
                 Key = zipFileName,
-                FilePath = tempPath
+                FilePath = tempPath,
             });
 
             var registration = new RegisterApplicationRevisionRequest
