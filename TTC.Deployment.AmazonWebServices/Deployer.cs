@@ -38,7 +38,7 @@ namespace TTC.Deployment.AmazonWebServices
             _assumeRoleTrustDocument = awsConfiguration.AssumeRoleTrustDocument;
             _iamRolePolicyDocument = awsConfiguration.IamRolePolicyDocument;
 
-            var credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
+            AWSCredentials credentials;
 
             if (isArn(awsConfiguration.RoleName))
             {
@@ -62,6 +62,9 @@ namespace TTC.Deployment.AmazonWebServices
                 credentials = sessionCredentials;
 
                 _role = new AssumedRole(assumeRoleResult.AssumedRoleUser);
+            }
+            else {
+                credentials = awsConfiguration.Credentials ?? new EnvironmentAWSCredentials();
             }
 
             _codeDeployClient = new AmazonCodeDeployClient(
