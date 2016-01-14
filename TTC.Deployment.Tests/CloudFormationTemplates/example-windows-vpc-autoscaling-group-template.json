@@ -159,7 +159,7 @@
           }
         },
         "ImageId": "ami-83a5bce2",
-        "InstanceType": "t2.small",
+        "InstanceType": "t2.nano",
         "KeyName": "WindowsTestKey",
         "SecurityGroups": [{
           "Ref": "securityGroup1"
