@@ -87,7 +87,7 @@ namespace TTC.Deployment.Tests
             var deployer = new Deployer(_awsConfiguration);
             //deployer.CreateStack(new StackTemplate {
             //    StackName = "SimpleBucketTestStack",
-            //    TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket-template.json"),
+            //    TemplatePath = CloudFormationTemplates.Path("simple-s3-bucket.template"),
             //});
 
             //var s3Response = _s3Client.GetBucketLocation(_bucketName);

@@ -37,7 +37,7 @@ namespace TTC.Deployment.Tests
             _stack = _deployer.CreateStack(new StackTemplate
             {
                 StackName = StackName,
-                TemplatePath = CloudFormationTemplates.Path("example-windows-vpc-template.json")
+                TemplatePath = CloudFormationTemplates.Path("example-windows-vpc.template")
             });
             _hasCreatedStack = true;
         }

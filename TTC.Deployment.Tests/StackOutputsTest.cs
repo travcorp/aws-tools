@@ -25,7 +25,7 @@ namespace TTC.Deployment.Tests
             var stack = deployer.CreateStack(new StackTemplate
             {
                 StackName = _stackName,
-                TemplatePath = CloudFormationTemplates.Path("stack-outputs.json")
+                TemplatePath = CloudFormationTemplates.Path("stack-outputs.template")
             });
             Assert.That(stack.Outputs["outputA"], Is.EqualTo("123"));
             Assert.That(stack.Outputs["outputB"], Is.EqualTo("456"));

@@ -110,7 +110,7 @@
     <None Include="CloudFormationTemplates\example-basic-vpc.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CloudFormationTemplates\stack-outputs.json">
+    <None Include="CloudFormationTemplates\stack-outputs.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Roles\code-deploy-policy.json">
@@ -128,13 +128,13 @@
     <None Include="Roles\role-access-policy.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CloudFormationTemplates\example-windows-vpc-autoscaling-group-template.json">
+    <None Include="CloudFormationTemplates\example-windows-vpc-autoscaling-group.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CloudFormationTemplates\simple-s3-bucket-template.json">
+    <None Include="CloudFormationTemplates\simple-s3-bucket.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="CloudFormationTemplates\example-windows-vpc-template.json">
+    <None Include="CloudFormationTemplates\example-windows-vpc.template">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ExampleRevisions\HelloWorld-1.2.3\ApiLayer\deployspec.yml">
