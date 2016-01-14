@@ -139,7 +139,7 @@ namespace TTC.Deployment.AmazonWebServices
 
         public void DeleteStack(string stackName)
         {
-            var response = _cloudFormationClient.DeleteStack(new DeleteStackRequest {StackName = stackName});
+            _cloudFormationClient.DeleteStack(new DeleteStackRequest {StackName = stackName});
             WaitForStackDeleted(stackName);
         }
 
