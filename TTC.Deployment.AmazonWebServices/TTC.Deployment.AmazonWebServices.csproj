@@ -71,6 +71,7 @@
     <Compile Include="AwsConfiguration.cs" />
     <Compile Include="Bundle.cs" />
     <Compile Include="ApplicationSetRevision.cs" />
+    <Compile Include="FailedToDeleteStackException.cs" />
     <Compile Include="DeploymentGroupSpecification.cs" />
     <Compile Include="DeploymentsFailedException.cs" />
     <Compile Include="FailedInstance.cs" />

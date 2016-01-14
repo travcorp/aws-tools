@@ -137,6 +137,12 @@ namespace TTC.Deployment.AmazonWebServices
             return new Stack(stackName, stack.Outputs.ToDictionary(x => x.OutputKey, x => x.OutputValue));
         }
 
+        public void DeleteStack(string stackName)
+        {
+            _cloudFormationClient.DeleteStack(new DeleteStackRequest {StackName = stackName});
+            WaitForStackDeleted(stackName);
+        }
+
         private void WaitForStack(string stackName)
         {
             var status = StackStatus.CREATE_IN_PROGRESS;
@@ -152,6 +158,29 @@ namespace TTC.Deployment.AmazonWebServices
             {
                 var eventsResponse = _cloudFormationClient.DescribeStackEvents(new DescribeStackEventsRequest { StackName = stackName });
                 throw new FailedToCreateStackException(stackName, _awsEndpoint, status.Value, statusReason, eventsResponse.StackEvents);
+            }
+        }
+
+        private void WaitForStackDeleted(string stackName)
+        {
+            var status = StackStatus.DELETE_IN_PROGRESS;
+            string statusReason = null;
+            StackSummary stack = null;
+
+            while (status == StackStatus.DELETE_IN_PROGRESS)
+            {
+                stack = _cloudFormationClient.ListStacks().StackSummaries.FirstOrDefault(s => s.StackName == stackName);
+                if (stack == null) break;
+
+                status = stack.StackStatus;
+                statusReason = stack.StackStatusReason;
+                if (status == StackStatus.DELETE_IN_PROGRESS) Thread.Sleep(TimeSpan.FromSeconds(10));
+            }
+
+            if (stack != null && status != StackStatus.DELETE_COMPLETE)
+            {
+                var eventsResponse = _cloudFormationClient.DescribeStackEvents(new DescribeStackEventsRequest { StackName = stackName });
+                throw new FailedToDeleteStackException(stackName, _awsEndpoint, status.Value, statusReason, eventsResponse.StackEvents);
             }
         }
 

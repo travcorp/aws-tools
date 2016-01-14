@@ -158,7 +158,7 @@
             ]
           }
         },
-        "ImageId": "ami-f8f715cb",
+        "ImageId": "ami-83a5bce2",
         "InstanceType": "t2.small",
         "KeyName": "WindowsTestKey",
         "SecurityGroups": [{
