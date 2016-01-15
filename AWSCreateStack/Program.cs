@@ -20,7 +20,8 @@ namespace AWSCreateStack
             deployer.CreateStack(new StackTemplate
             {
                 StackName = options.StackName,
-                TemplatePath = options.TemplatePath
+                TemplatePath = options.TemplatePath,
+                ParameterPath = options.ParameterPath
             });
         }
     }
@@ -32,6 +33,9 @@ namespace AWSCreateStack
 
         [Option('t', "templatePath", Required = true, HelpText = "Path to cloud formation template")]
         public string TemplatePath { get; set; }
+
+        [Option('p', "parameterPath", Required = false, HelpText = "Path to template parameters")]
+        public string ParameterPath { get; set; }
 
         [Option('r', "Region", HelpText = "AWS Region (e.g. us-east-1")]
         public string Region { get; set; }
