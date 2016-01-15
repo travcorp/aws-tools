@@ -7,6 +7,10 @@
 *.userosscache
 *.sln.docstates
 
+# NCrunch files
+*.ncrunchsolution
+*.ncrunchproject
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

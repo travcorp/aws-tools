@@ -60,6 +60,10 @@
       <HintPath>..\packages\AWSSDK.SecurityToken.3.2.1.0-beta\lib\net45\AWSSDK.SecurityToken.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression.FileSystem" />
@@ -79,6 +83,7 @@
     <Compile Include="NoInstancesException.cs" />
     <Compile Include="Stack.cs" />
     <Compile Include="Deployer.cs" />
+    <Compile Include="StackParameterReader.cs" />
     <Compile Include="StackTemplate.cs" />
     <Compile Include="FailedToCreateStackException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

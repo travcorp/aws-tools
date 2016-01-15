@@ -1,7 +1,10 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "AWS.Removal.Tests VPC (Please Delete Me)",
+    "Description": "AWS.Deployment.Tests VPC (Please Delete Me)",
     "Parameters": {
+		"VpcName" : {
+			"Type" : "String"
+		}
     },
     "Resources": {
         "vpc1": {
@@ -12,7 +15,7 @@
                 "EnableDnsSupport": "true",
                 "EnableDnsHostnames": "true",
                 "Tags": [
-                    { "Key": "Name", "Value": "TTC.Deployment.Tests VPC" }
+                    { "Key": "Name", "Value": {"Ref" : "VpcName"} }
                 ]
             }
         }

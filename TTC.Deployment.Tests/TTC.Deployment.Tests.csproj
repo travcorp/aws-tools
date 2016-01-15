@@ -60,6 +60,10 @@
       <HintPath>..\packages\AWSSDK.SecurityToken.3.2.1.0-beta\lib\net45\AWSSDK.SecurityToken.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
@@ -91,12 +95,19 @@
     <Compile Include="Roles.cs" />
     <Compile Include="StackHelper.cs" />
     <Compile Include="EnsureRunningAsSpecialAwsToolsTestUser.cs" />
+    <Compile Include="StackParameterReaderTest.cs" />
     <Compile Include="TestSuiteCredentials.cs" />
     <Compile Include="StackOutputsTest.cs" />
     <Compile Include="TestConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App.config" />
+    <None Include="CloudFormationTemplates\example-parameters.template">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="CloudFormationTemplates\example-parameters.parameters">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="ExampleRevisions\HelloWorld-AutoScaling\WebLayer\index.aspx">
       <SubType>ASPXCodeBehind</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
