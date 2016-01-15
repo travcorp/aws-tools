@@ -127,7 +127,8 @@ namespace TTC.Deployment.AmazonWebServices
                 StackName = stackName,
                 TemplateBody = File.ReadAllText(templatePath),
                 Capabilities = new List<string> { Capability.CAPABILITY_IAM },
-                DisableRollback = false
+                DisableRollback = false,
+                Parameters = GetStackParameters(stackTemplate.ParameterPath)
             });
 
             WaitForStack(stackName);
@@ -135,6 +136,14 @@ namespace TTC.Deployment.AmazonWebServices
                 _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName}).Stacks.First();
 
             return new Stack(stackName, stack.Outputs.ToDictionary(x => x.OutputKey, x => x.OutputValue));
+        }
+
+        private List<Parameter> GetStackParameters(string parameterPath)
+        {
+            if (string.IsNullOrWhiteSpace(parameterPath))
+                return null;
+
+            return new StackParameterReader(parameterPath).Read();
         }
 
         public void DeleteStack(string stackName)
