@@ -52,14 +52,22 @@ Requires:
 
 Pushes a version of your app to S3 and deploys it to a running stack. Uses AWS CodeDeploy. _This command should be used if you are using CodeDeploy to deploy your application_
 
-For deploy to work, the EC2 instances must have a code deploy agent installed. This can be either baked into the server image, or installed in the userdata section of the cloud formation template.  On Windows, something like:
+For deploy to work, the EC2 instances must have a code deploy agent installed. This can be either baked into the server image, or installed in the userdata section of the cloud formation template.  
 
+On Windows, something like:
 ```
   "<script>\n",                           
     "powershell.exe New-Item -Path c:\\temp -ItemType \"directory\" -Force \n",
     "powershell.exe Read-S3Object -BucketName aws-codedeploy-us-east-1/latest -Key codedeploy-agent.msi -File c:\\temp\\codedeploy-agent.msi \n",
     "powershell.exe Start-Process -Wait -FilePath c:\\temp\\codedeploy-agent.msi -WindowStyle Hidden \n"
   "</script>\n"
+```
+
+On Linux, like:
+```
+aws s3 cp s3://aws-codedeploy-eu-west-1/latest/install . --region eu-west-1
+chmod +x ./install
+./install auto   
 ```
 
 It uploads applications zipped into folders named after their CodeDeploy DeploymentGroups.  It then CodeDeploys each group to all EC2 instances tagged as follows:
