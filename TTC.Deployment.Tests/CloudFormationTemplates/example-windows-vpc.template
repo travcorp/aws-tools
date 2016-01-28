@@ -8,7 +8,7 @@
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Path": "/",
-                "Roles": [ "DeployableInstanceRole" ]
+                "Roles": [ {"Ref" : "DeployableInstanceRole"} ]
             }
         },
 		"CodeDeployPolicy" : {
