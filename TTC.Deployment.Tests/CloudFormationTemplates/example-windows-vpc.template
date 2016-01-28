@@ -1,4 +1,4 @@
-﻿{
+{
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "AWS.Deployment.Tests VPC (Please Delete Me)",
     "Parameters": {
@@ -8,9 +8,49 @@
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Path": "/",
-                "Roles": [ "S3CodeAccessRole" ]
+                "Roles": [ "DeployableInstanceRole" ]
             }
         },
+		"CodeDeployPolicy" : {
+			"Type" : "AWS::IAM::Policy",
+			"Properties" : {
+				"PolicyName" : "CodeDeployPolicy",
+				"PolicyDocument" : {
+					"Version" : "2012-10-17",
+					"Statement" : [{
+							"Action" : [
+								"s3:GetObject",
+								"s3:GetObjectVersion",
+								"s3:ListObjects"
+							],
+							"Effect" : "Allow",
+							"Resource" : "*"
+						}
+					]
+				},
+				"Roles" : [{
+						"Ref" : "DeployableInstanceRole"
+					}
+				]
+			}
+		},
+		"DeployableInstanceRole" : {
+			"Type" : "AWS::IAM::Role",
+			"Properties" : {
+				"AssumeRolePolicyDocument" : {
+					"Version" : "2012-10-17",
+					"Statement" : [{
+							"Effect" : "Allow",
+							"Principal" : {
+								"Service" : ["ec2.amazonaws.com"]
+							},
+							"Action" : ["sts:AssumeRole"]
+						}
+					]
+				},
+				"Path" : "/"
+			}
+		},
         "vpc1": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
