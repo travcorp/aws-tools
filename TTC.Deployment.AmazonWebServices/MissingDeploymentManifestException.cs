@@ -14,6 +14,6 @@ namespace TTC.Deployment.AmazonWebServices
             _path = path;
         }
 
-        public override string Message { get { return String.Format("No deployspec.yml found at {0}", _path); } }
+        public override string Message { get { return String.Format("No appspec.yml found at {0}", _path); } }
     }
 }

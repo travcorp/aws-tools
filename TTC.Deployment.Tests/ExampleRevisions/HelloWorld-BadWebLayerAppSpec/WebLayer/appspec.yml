@@ -1,9 +1,2 @@
-version: 0.0
-os: windows
-files:
-  - source: \index.aspx
-    destination: C:\inetpub\wwwroot
-hooks:
-  BeforeInstall:
-    - location: \before-install.bat
-      timeout: 900
+deploymentGroup:
+  autoscaling: false

@@ -33,7 +33,7 @@ namespace TTC.Deployment.AmazonWebServices
             _version = version;
             _bucket = bucket;
             _etag = etag;
-            _deploymentGroup = DeploymentGroupSpecification.FromFile(Path.Combine(_bundleDirectory.FullName, "deployspec.yml"));
+            _deploymentGroup = DeploymentGroupSpecification.FromFile(Path.Combine(_bundleDirectory.FullName, "appspec.yml"));
 
 
             Console.WriteLine("Bucket initialized with bucket: " + bucket);
