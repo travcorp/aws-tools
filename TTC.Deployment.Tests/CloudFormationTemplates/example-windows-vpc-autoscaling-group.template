@@ -199,7 +199,7 @@
           }
         },
         "ImageId": "ami-1719f677",
-        "InstanceType": "t2.micro",
+        "InstanceType": "t2.large",
         "KeyName": "WindowsTestKey",
         "SecurityGroups": [{
           "Ref": "securityGroup1"
