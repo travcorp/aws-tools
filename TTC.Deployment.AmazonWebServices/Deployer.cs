@@ -119,7 +119,7 @@ namespace TTC.Deployment.AmazonWebServices
 
         public Stack CreateStack(StackTemplate stackTemplate)
         {
-            var templatePath = Path.Combine(Environment.CurrentDirectory, stackTemplate.TemplatePath);
+            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, stackTemplate.TemplatePath);
 
             var stackName = stackTemplate.StackName;
 
