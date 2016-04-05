@@ -134,7 +134,7 @@
     <Content Include="ExampleRevisions\HelloWorld-Empty\Wtf\wtf.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExampleRevisions\HelloWorld-NoAppSpec\WebLayer\index.html">
+    <Content Include="ExampleRevisions\HelloWorld-NoDeploySpec\WebLayer\index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="CloudFormationTemplates\example-basic-vpc.template">
@@ -186,6 +186,9 @@
     <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\ApiLayer\deployspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\WebLayer\appspec.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ExampleRevisions\HelloWorld-1.2.3\ApiLayer\appspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -195,13 +198,16 @@
     <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\WebLayer\before-install.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\WebLayer\appspec.yml">
+    <None Include="ExampleRevisions\HelloWorld-BadWebLayerAppSpec\WebLayer\deployspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ExampleRevisions\HelloWorld-Empty\Wtf\appspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ExampleRevisions\HelloWorld-Empty\Wtf\deployspec.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExampleRevisions\HelloWorld-NoDeploySpec\WebLayer\appspec.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

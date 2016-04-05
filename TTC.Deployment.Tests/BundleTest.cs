@@ -25,8 +25,8 @@ namespace TTC.Deployment.Tests
         [Test]
         public void MissingDeploymentManifestThrowsUsefulError()
         {
-            var dir = ExampleRevisions.BundleDirectory("HelloWorld-NoAppSpec", "WebLayer");
-            Assert.That(() => new Bundle("HelloWorld-NoAppSpec", dir, "SomeVersion", "SomeBucket", "SomeETag"), Throws.InstanceOf<MissingDeploymentManifestException>());
+            var dir = ExampleRevisions.BundleDirectory("HelloWorld-NoDeploySpec", "WebLayer");
+            Assert.That(() => new Bundle("HelloWorld-NoDeploySpec", dir, "SomeVersion", "SomeBucket", "SomeETag"), Throws.InstanceOf<MissingDeploymentManifestException>());
         }
     }
 
