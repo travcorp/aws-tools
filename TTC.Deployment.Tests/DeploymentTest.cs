@@ -60,7 +60,8 @@ namespace TTC.Deployment.Tests
             {
                 ApplicationSetName = "HelloWorld",
                 Version = "BadWebLayerAppSpec",
-                LocalDirectory = ExampleRevisions.Directory("HelloWorld-BadWebLayerAppSpec")
+                LocalDirectory = ExampleRevisions.Directory("HelloWorld-BadWebLayerAppSpec"),
+                StackName = StackName
             });    
 
             var expectedTail = string.Join("\n",
@@ -76,7 +77,7 @@ namespace TTC.Deployment.Tests
 
            try
            {
-               _deployer.DeployRelease(badRevision, StackName, "CodeDeployRole");
+               _deployer.DeployRelease(badRevision, "CodeDeployRole");
                Assert.Fail("Expected DeploymentsFailedException");
            }
            catch (DeploymentsFailedException e)
@@ -92,12 +93,13 @@ namespace TTC.Deployment.Tests
             {
                 ApplicationSetName = "HelloWorld",
                 Version = "Empty",
-                LocalDirectory = ExampleRevisions.Directory("HelloWorld-Empty")
+                LocalDirectory = ExampleRevisions.Directory("HelloWorld-Empty"),
+                StackName = StackName
             });
 
             try
             {
-                _deployer.DeployRelease(badRevision, StackName, "CodeDeployRole");
+                _deployer.DeployRelease(badRevision, "CodeDeployRole");
                 Assert.Fail("Expected DeploymentsFailedException");
             }
             catch (DeploymentsFailedException e)
@@ -114,10 +116,11 @@ namespace TTC.Deployment.Tests
             {
                 ApplicationSetName = "HelloWorld",
                 Version = "GoodRevision",
-                LocalDirectory = ExampleRevisions.Directory("HelloWorld-1.2.3")
+                LocalDirectory = ExampleRevisions.Directory("HelloWorld-1.2.3"),
+                StackName = StackName
             });
 
-            _deployer.DeployRelease(goodRevision, StackName, "CodeDeployRole");
+            _deployer.DeployRelease(goodRevision, "CodeDeployRole");
 
             var publicDnsName = _stack.Outputs.First(o => o.Key == "publicDnsName").Value;
             var homePageUrl = string.Format("http://{0}/index.aspx", publicDnsName);

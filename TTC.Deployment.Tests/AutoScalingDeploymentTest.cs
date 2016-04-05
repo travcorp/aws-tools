@@ -70,10 +70,11 @@ namespace TTC.Deployment.Tests
             {
                 ApplicationSetName = "HelloWorld",
                 Version = "GoodAutoScalingRevision",
-                LocalDirectory = ExampleRevisions.Directory("HelloWorld-AutoScaling")
+                LocalDirectory = ExampleRevisions.Directory("HelloWorld-AutoScaling"),
+                StackName = StackName
             });
 
-            _deployer.DeployRelease(goodRevision, StackName, "CodeDeployRole");
+            _deployer.DeployRelease(goodRevision, "CodeDeployRole");
 
             var publicDnsName = _stack.Outputs["publicDnsName"];
             var homePageUrl = string.Format("http://{0}/index.aspx", publicDnsName);

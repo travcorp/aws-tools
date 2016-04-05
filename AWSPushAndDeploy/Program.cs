@@ -26,12 +26,13 @@ namespace AWSPushAndDeploy
             var revision = deployer.PushRevision(new ApplicationSetRevision
             {
                 ApplicationSetName = options.ApplicationSetName,
+                StackName = options.StackName,
                 Version = options.Version,
                 LocalDirectory = options.BuildDirectoryPath
             });
             try
             {
-                deployer.DeployRelease(revision, options.StackName, options.CodeDeployRoleName);
+                deployer.DeployRelease(revision, options.CodeDeployRoleName);
             }
             catch (Exception e)
             {

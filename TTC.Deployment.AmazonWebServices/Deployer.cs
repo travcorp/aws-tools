@@ -209,7 +209,7 @@ namespace TTC.Deployment.AmazonWebServices
                 bundles);
         }
 
-        public void DeployRelease(Release release, string stackName, string codeDeployRoleName)
+        public void DeployRelease(Release release, string codeDeployRoleName)
         {
             var role = GetOrCreateCodeDeployRole(codeDeployRoleName);
 
@@ -220,7 +220,6 @@ namespace TTC.Deployment.AmazonWebServices
                         _codeDeployClient, 
                         _iamClient, 
                         _autoScalingClient, 
-                        stackName,
                         role).DeploymentId).ToList();
 
             WaitForBundlesToDeploy(deploymentIds);
@@ -233,7 +232,8 @@ namespace TTC.Deployment.AmazonWebServices
                 subdirectory, 
                 applicationSetRevision.Version, 
                 bucket, 
-                null);
+                null,
+                applicationSetRevision.StackName);
 
             bundle.Push(_s3Client, _codeDeployClient);
 
