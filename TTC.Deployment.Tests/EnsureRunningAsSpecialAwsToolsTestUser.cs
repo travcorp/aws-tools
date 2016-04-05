@@ -7,7 +7,7 @@ namespace TTC.Deployment.Tests
     [SetUpFixture]
     public class EnsureRunningAsSpecialAwsToolsTestUser
     {
-        [SetUp]
+        [OneTimeSetUp]
         public void CheckWeAreRunningAsTheSpecialUser()
 	    {
             ConfigurationManager.AppSettings["AWSProfileName"] = "aws-tools-tests";
