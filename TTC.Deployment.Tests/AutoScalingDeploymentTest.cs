@@ -70,7 +70,7 @@ namespace TTC.Deployment.Tests
             {
                 ApplicationSetName = "HelloWorld",
                 Version = "GoodAutoScalingRevision",
-                LocalDirectory = @".\ExampleRevisions\HelloWorld-AutoScaling"
+                LocalDirectory = ExampleRevisions.Directory("HelloWorld-AutoScaling")
             });
 
             _deployer.DeployRelease(goodRevision, StackName, "CodeDeployRole");
