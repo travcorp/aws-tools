@@ -13,7 +13,7 @@
     <tags></tags>
     <dependencies>
       <dependency id="CommandLineParser" version="1.9.71" />
-      <dependency id="AWSSDK" version="2.3.46" />
+      <dependency id="AWSSDK.Core" version="3.2.1.0-beta" />
     </dependencies>
   </metadata>
   <files>
