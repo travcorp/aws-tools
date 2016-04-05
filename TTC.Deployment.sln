@@ -13,11 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSS3Push", "AWSS3Push\AWSS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSPushAndDeploy", "AWSPushAndDeploy\AWSPushAndDeploy.csproj", "{A3154A1F-466E-4733-A264-83D620A9A823}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FF310DEB-3CA1-49EC-8DB4-A53D66763DC9}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSDeleteStack", "AWSDeleteStack\AWSDeleteStack.csproj", "{0B88592E-5DB2-49EB-8ADF-59A54BAB599F}"
 EndProject
 Global
