@@ -8,6 +8,7 @@
     <owners>TravCorp</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Wrapper around AWS CodeDeploy API. Code deploys apps and logs output</description>
+    <projectUrl>https://github.com/travcorp/aws-tools</projectUrl>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2015 - TTC</copyright>
     <tags></tags>

@@ -8,6 +8,7 @@
     <owners>TravCorp</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Wrapper around AWS CloudFormation API. Creates a stack and outputs the result</description>
+    <projectUrl>https://github.com/travcorp/aws-tools</projectUrl>
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2015 - TTC</copyright>
     <tags></tags>
