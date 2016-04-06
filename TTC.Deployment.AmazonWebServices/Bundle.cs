@@ -23,9 +23,10 @@ namespace TTC.Deployment.AmazonWebServices
         private readonly string _version;
         private readonly string _bucket;
         private readonly string _etag;
+        private readonly string _stackName;
         private readonly DeploymentGroupSpecification _deploymentGroup;
 
-        public Bundle(string applicationSetName, DirectoryInfo bundleDirectory, string version, string bucket, string etag)
+        public Bundle(string applicationSetName, DirectoryInfo bundleDirectory, string version, string bucket, string etag, string stackName)
         {
             _applicationSetName = applicationSetName;
             _bundleDirectory = bundleDirectory;
@@ -33,6 +34,7 @@ namespace TTC.Deployment.AmazonWebServices
             _version = version;
             _bucket = bucket;
             _etag = etag;
+            _stackName = stackName;
             _deploymentGroup = DeploymentGroupSpecification.FromFile(Path.Combine(_bundleDirectory.FullName, "deployspec.yml"));
 
 
@@ -73,10 +75,9 @@ namespace TTC.Deployment.AmazonWebServices
             AmazonCodeDeployClient codeDeployClient, 
             AmazonIdentityManagementServiceClient iamClient, 
             AmazonAutoScalingClient autoScalingClient, 
-            string stackName, 
             Role role)
         {
-            var deploymentGroupName = stackName + "_" + BundleName;
+            var deploymentGroupName = _stackName + "_" + BundleName;
 
             EnsureDeploymentGroupExistsForBundle(codeDeployClient, iamClient, autoScalingClient, role, deploymentGroupName);
 
@@ -102,7 +103,7 @@ namespace TTC.Deployment.AmazonWebServices
 
         public string CodeDeployApplicationName
         {
-            get { return ApplicationSetName + "." + BundleName; }
+            get { return _stackName + "." + BundleName; }
         }
 
         public DeploymentGroupSpecification DeploymentGroup
@@ -130,13 +131,20 @@ namespace TTC.Deployment.AmazonWebServices
                     throw new ApplicationException(
                         string.Format("Auto scaling group with DeploymentRole {0} does not exist.", deploymentGroupName));
 
-                codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
+                try
                 {
-                    ApplicationName = CodeDeployApplicationName,
-                    DeploymentGroupName = deploymentGroupName,
-                    ServiceRoleArn = serviceRoleArn,
-                    AutoScalingGroups = new List<string> { group.AutoScalingGroupName }
-                });
+                    codeDeployClient.CreateDeploymentGroup(new CreateDeploymentGroupRequest
+                    {
+                        ApplicationName = CodeDeployApplicationName,
+                        DeploymentGroupName = deploymentGroupName,
+                        ServiceRoleArn = serviceRoleArn,
+                        AutoScalingGroups = new List<string> {group.AutoScalingGroupName}
+                    });
+                }
+                catch (DeploymentGroupAlreadyExistsException)
+                {
+                    // reuse a previously created deployment group with the same name
+                }
             }
             else
             {

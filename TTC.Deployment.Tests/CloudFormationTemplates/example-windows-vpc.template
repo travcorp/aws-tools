@@ -143,7 +143,7 @@
                 "DisableApiTermination": "false",
                 "InstanceInitiatedShutdownBehavior": "stop",
                 "ImageId": "ami-1719f677",
-                "InstanceType": "t2.micro",
+                "InstanceType": "t2.large",
                 "KeyName": "WindowsTestKey",
                 "Monitoring": "false",
                 "Tags": [
@@ -228,7 +228,7 @@
                 "DisableApiTermination": "false",
                 "InstanceInitiatedShutdownBehavior": "stop",
                 "ImageId": "ami-1719f677",
-                "InstanceType": "t2.micro",
+                "InstanceType": "t2.large",
                 "KeyName": "WindowsTestKey",
                 "Monitoring": "false",
                 "Tags": [

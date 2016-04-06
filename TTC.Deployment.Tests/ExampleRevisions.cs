@@ -7,7 +7,7 @@ namespace TTC.Deployment.Tests
     {
         public static string Directory(string name)
         {
-            return Path.Combine(Environment.CurrentDirectory, @"ExampleRevisions", name);
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"ExampleRevisions", name);
         }
 
         public static DirectoryInfo BundleDirectory(string revisionName, string bundleName)
