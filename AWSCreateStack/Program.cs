@@ -15,6 +15,7 @@ namespace AWSCreateStack
             var deployer = new Deployer(new AwsConfiguration
             {
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
+                RoleName = options.RoleName,
                 Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort }
             });
             deployer.CreateStack(new StackTemplate
@@ -36,6 +37,9 @@ namespace AWSCreateStack
 
         [Option('p', "parameterPath", Required = false, HelpText = "Path to template parameters")]
         public string ParameterPath { get; set; }
+
+        [Option('n', "roleName", Required = false, HelpText = "Assume role name")]
+        public string RoleName { get; set; }
 
         [Option('r', "Region", HelpText = "AWS Region (e.g. us-east-1")]
         public string Region { get; set; }
