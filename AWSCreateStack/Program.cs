@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System;
+using Amazon;
 using CommandLine;
 using CommandLine.Text;
 using TTC.Deployment.AmazonWebServices;
@@ -10,7 +11,8 @@ namespace AWSCreateStack
         static void Main(string[] args)
         {
             var options = new Options();
-            if (!Parser.Default.ParseArguments(args, options)) return;
+            if (!Parser.Default.ParseArguments(args, options))
+                Environment.Exit(1);
 
             var deployer = new Deployer(new AwsConfiguration
             {

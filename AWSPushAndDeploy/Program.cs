@@ -11,8 +11,9 @@ namespace AWSPushAndDeploy
         static void Main(string[] args)
         {
             var options = new Options();
-            if (!Parser.Default.ParseArguments(args, options)) return;
-
+            if (!Parser.Default.ParseArguments(args, options))
+                Environment.Exit(1);
+            
             var deployer = new Deployer(new AwsConfiguration
             {
                 AssumeRoleTrustDocument = options.AssumeRolePolicyPath,
