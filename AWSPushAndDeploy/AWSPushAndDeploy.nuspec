@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>AWSPushAndDeploy</id>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <title>AWSPushAndDeploy</title>
     <authors>TravCorp</authors>
     <owners>TravCorp</owners>

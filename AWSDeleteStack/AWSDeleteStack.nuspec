@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>AWSDeleteStack</id>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <title>AWSDeleteStack</title>
     <authors>TravCorp</authors>
     <owners>TravCorp</owners>
