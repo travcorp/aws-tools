@@ -96,6 +96,39 @@ namespace TTC.Deployment.Tests
             }
         }
 
+        [Test]
+        public void CreatesStackWithMinifiedOversizedTemplates()
+        {
+            string stackName = "ProvisioningTest-CreatesStackWithMinifiedOversizedTemplates";
+            SetUp(stackName);
+
+            try
+            {
+                var deployer = new Deployer(_awsConfiguration);
+
+                deployer.CreateStack(new StackTemplate
+                {
+                    StackName = stackName,
+                    TemplatePath = CloudFormationTemplates.Path("example-oversize.template")
+                });
+
+                var status = StackStatus.CREATE_IN_PROGRESS;
+                while (status == StackStatus.CREATE_IN_PROGRESS)
+                {
+                    var stack =
+                        _cloudFormationClient.DescribeStacks(new DescribeStacksRequest { StackName = stackName })
+                                             .Stacks.First();
+                    status = stack.StackStatus;
+                    if (status == StackStatus.CREATE_IN_PROGRESS) Thread.Sleep(TimeSpan.FromSeconds(10));
+                }
+
+                Assert.AreEqual(status, StackStatus.CREATE_COMPLETE);
+            }
+            finally
+            {
+                DeleteTestStack(stackName);
+            }
+        }
 
         private void SetUp(string stackName)
         {

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Amazon.AutoScaling;
 using Amazon.CloudFormation;
@@ -122,10 +124,12 @@ namespace TTC.Deployment.AmazonWebServices
             var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, stackTemplate.TemplatePath);
 
             var stackName = stackTemplate.StackName;
+            var templateBody = File.ReadAllText(templatePath);
+            templateBody = MinifyJson(templateBody);
 
             _cloudFormationClient.CreateStack(new CreateStackRequest {
                 StackName = stackName,
-                TemplateBody = File.ReadAllText(templatePath),
+                TemplateBody = templateBody,
                 Capabilities = new List<string> { Capability.CAPABILITY_IAM },
                 DisableRollback = false,
                 Parameters = GetStackParameters(stackTemplate.ParameterPath)
@@ -136,6 +140,11 @@ namespace TTC.Deployment.AmazonWebServices
                 _cloudFormationClient.DescribeStacks(new DescribeStacksRequest {StackName = stackName}).Stacks.First();
 
             return new Stack(stackName, stack.Outputs.ToDictionary(x => x.OutputKey, x => x.OutputValue));
+        }
+
+        private static string MinifyJson(string templateBody)
+        {
+            return Regex.Replace(templateBody, "(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", "$1");
         }
 
         private List<Parameter> GetStackParameters(string parameterPath)

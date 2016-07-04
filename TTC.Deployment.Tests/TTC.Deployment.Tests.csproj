@@ -127,6 +127,9 @@
     <None Include="CloudFormationTemplates\example-parameters.parameters">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="CloudFormationTemplates\example-oversize.template">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <Content Include="ExampleRevisions\HelloWorld-AutoScaling\WebLayer\index.aspx">
       <SubType>ASPXCodeBehind</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System;
+using Amazon;
 using CommandLine;
 using CommandLine.Text;
 using TTC.Deployment.AmazonWebServices;
@@ -10,11 +11,13 @@ namespace AWSDeleteStack
         static void Main(string[] args)
         {
             var options = new Options();
-            if (!Parser.Default.ParseArguments(args, options)) return;
+            if (!Parser.Default.ParseArguments(args, options))
+                Environment.Exit(1);
 
             var deployer = new Deployer(new AwsConfiguration
             {
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
+                RoleName = options.RoleName,
                 Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort }
             });
             deployer.DeleteStack(options.StackName);
@@ -28,6 +31,9 @@ namespace AWSDeleteStack
 
         [Option('r', "Region", HelpText = "AWS Region (e.g. us-east-1")]
         public string Region { get; set; }
+
+        [Option('n', "roleName", Required = false, HelpText = "Assume role name")]
+        public string RoleName { get; set; }
 
         [Option('h', "proxyHost", Required = false, HelpText = "The proxy host")]
         public string ProxyHost { get; set; }
