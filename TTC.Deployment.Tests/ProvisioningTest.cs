@@ -97,9 +97,9 @@ namespace TTC.Deployment.Tests
         }
 
         [Test]
-        public void CreatesStackWithMinifiedOversizedTemplates()
+        public void CreatesStackWithOversizedTemplates()
         {
-            string stackName = "ProvisioningTest-CreatesStackWithMinifiedOversizedTemplates";
+            string stackName = "ProvisioningTest-CreatesStackWithOversizedTemplates";
             SetUp(stackName);
 
             try
@@ -135,7 +135,8 @@ namespace TTC.Deployment.Tests
             _awsConfiguration = new AwsConfiguration
             {
                 AwsEndpoint = TestConfiguration.AwsEndpoint,
-                Credentials = new TestSuiteCredentials()
+                Credentials = new TestSuiteCredentials(),
+                Bucket = "aws-deployment-tools-tests"
             };
 
             _cloudFormationClient = new AmazonCloudFormationClient(

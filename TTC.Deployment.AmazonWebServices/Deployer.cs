@@ -17,6 +17,7 @@ using Amazon.Runtime;
 using Amazon.SecurityToken;
 using Amazon.SecurityToken.Model;
 using Amazon;
+using Amazon.S3.Model;
 
 namespace TTC.Deployment.AmazonWebServices
 {
@@ -121,15 +122,12 @@ namespace TTC.Deployment.AmazonWebServices
 
         public Stack CreateStack(StackTemplate stackTemplate)
         {
-            var templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, stackTemplate.TemplatePath);
-
             var stackName = stackTemplate.StackName;
-            var templateBody = File.ReadAllText(templatePath);
-            templateBody = MinifyJson(templateBody);
+            var templateUrl = PushCloudFormationTemplate(stackTemplate.TemplatePath, _bucket);
 
             _cloudFormationClient.CreateStack(new CreateStackRequest {
                 StackName = stackName,
-                TemplateBody = templateBody,
+                TemplateURL = templateUrl,
                 Capabilities = new List<string> { Capability.CAPABILITY_IAM },
                 DisableRollback = false,
                 Parameters = GetStackParameters(stackTemplate.ParameterPath)
@@ -142,9 +140,20 @@ namespace TTC.Deployment.AmazonWebServices
             return new Stack(stackName, stack.Outputs.ToDictionary(x => x.OutputKey, x => x.OutputValue));
         }
 
-        private static string MinifyJson(string templateBody)
+        private string PushCloudFormationTemplate(string templatePath, string bucket)
         {
-            return Regex.Replace(templateBody, "(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", "$1");
+            var templateFullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, templatePath);
+            var s3ObjectPath = $"cloud-formation-templates/{Path.GetFileNameWithoutExtension(templateFullPath)}.{Guid.NewGuid()}.template";
+
+            var s3Response =_s3Client.PutObject(new PutObjectRequest
+            {
+                BucketName = bucket,
+                Key = s3ObjectPath,
+                FilePath = templateFullPath
+            });
+
+            var s3Url = $"http://{bucket}.s3.amazonaws.com/{s3ObjectPath}";
+            return s3Url;
         }
 
         private List<Parameter> GetStackParameters(string parameterPath)
