@@ -145,6 +145,7 @@ namespace TTC.Deployment.AmazonWebServices
             var templateFullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, templatePath);
             var s3ObjectPath = $"cloud-formation-templates/{Path.GetFileNameWithoutExtension(templateFullPath)}.{Guid.NewGuid()}.template";
 
+            Console.WriteLine($"Copying CloudFormation template to buckes: [bucket]");
             var s3Response =_s3Client.PutObject(new PutObjectRequest
             {
                 BucketName = bucket,
@@ -153,6 +154,7 @@ namespace TTC.Deployment.AmazonWebServices
             });
 
             var s3Url = $"http://{bucket}.s3.amazonaws.com/{s3ObjectPath}";
+            Console.WriteLine($"Template URL: {s3Url}");
             return s3Url;
         }
 
