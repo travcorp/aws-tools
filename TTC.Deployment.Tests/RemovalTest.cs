@@ -167,7 +167,8 @@ namespace TTC.Deployment.Tests
             _awsConfiguration = new AwsConfiguration
             {
                 AwsEndpoint = TestConfiguration.AwsEndpoint,
-                Credentials = new TestSuiteCredentials()
+                Credentials = new TestSuiteCredentials(),
+                Bucket = "aws-deployment-tools-tests"
             };
 
             _cloudFormationClient =
