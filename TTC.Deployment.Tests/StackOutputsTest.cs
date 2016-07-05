@@ -20,7 +20,8 @@ namespace TTC.Deployment.Tests
             var deployer = new Deployer(new AwsConfiguration
             {
                 AwsEndpoint = TestConfiguration.AwsEndpoint,
-                Credentials = new TestSuiteCredentials()
+                Credentials = new TestSuiteCredentials(),
+                Bucket = "aws-deployment-tools-tests"
             });
             var stack = deployer.CreateStack(new StackTemplate
             {
