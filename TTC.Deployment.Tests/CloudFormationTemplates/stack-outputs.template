@@ -1,4 +1,4 @@
-﻿{
+{
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "AWS.Deployment.Tests StackOutputs (Please Delete Me)",
   "Parameters": {
