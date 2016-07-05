@@ -18,7 +18,8 @@ namespace AWSCreateStack
             {
                 AwsEndpoint = RegionEndpoint.GetBySystemName(options.Region),
                 RoleName = options.RoleName,
-                Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort }
+                Proxy = new AwsProxy { Host = options.ProxyHost, Port = options.ProxyPort },
+                Bucket = options.BucketName
             });
             deployer.CreateStack(new StackTemplate
             {
@@ -51,6 +52,9 @@ namespace AWSCreateStack
 
         [Option('x', "proxyPort", Required = false, HelpText = "The proxy port")]
         public int ProxyPort { get; set; }
+
+        [Option('l', "bucketName", Required = true, HelpText = "S3 bucket name to create / use")]
+        public string BucketName { get; set; }
 
         [HelpOption]
         public string GetUsage()
