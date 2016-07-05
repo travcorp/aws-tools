@@ -4,7 +4,7 @@ trap
     exit 666
 }
 
-$msbuild = (Join-Path ${env:ProgramFiles(x86)} "MSBuild\14.0\Bin")
+$msbuild = (Join-Path ${env:ProgramFiles(x86)} "MSBuild\14.0\Bin\MSBuild")
 
 & $msbuild  .\TTC.Deployment.sln /p:Configuration=Release /p:VisualStudioVersion=14.0
 if (-not $?) {
